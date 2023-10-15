@@ -1,11 +1,13 @@
 // Creating basic designs
+
+// Utility functions
 function convertStringToBoolean(val) {
   if (val === "0") return false;
 
   return true;
 }
 
-const convertHeaderToKey = {
+const HEADER_TO_KEY_HASH = {
   "I am currently employed at least part-time": "employment_status",
   "I identify as having a mental illness": "mental_illness_status",
   "Education": "education",
@@ -39,7 +41,7 @@ const convertHeaderToKey = {
   "Device Type": "device_type"
 };
 
-const numericalKeys = [
+const NUMERICAL_KEYS = [
   "total_annual_income",
   "annual_income_social_welfare",
   "gap_in_resume_length",
@@ -47,7 +49,7 @@ const numericalKeys = [
   "hospitalized_for_mental_illness_days"
 ];
 
-const booleanKeys = [
+const BOOLEAN_KEYS = [
   "mental_illness_status",
   "anxiety",
   "depression",
@@ -72,14 +74,14 @@ const booleanKeys = [
 function dataProcessor(data) {
   const cleanedData = {};
   Object.keys(data).forEach(key => {
-    const transformedKey = convertHeaderToKey[key];
+    const TRANSFORMED_KEY = HEADER_TO_KEY_HASH[key];
 
-    if (numericalKeys.includes(transformedKey)) {
-      cleanedData[transformedKey] = +data[key];
-    } else if (booleanKeys.includes(transformedKey)) {
-      cleanedData[transformedKey] = convertStringToBoolean(data[key]);
+    if (NUMERICAL_KEYS.includes(TRANSFORMED_KEY)) {
+      cleanedData[TRANSFORMED_KEY] = +data[key];
+    } else if (BOOLEAN_KEYS.includes(TRANSFORMED_KEY)) {
+      cleanedData[TRANSFORMED_KEY] = convertStringToBoolean(data[key]);
     } else {
-      cleanedData[transformedKey] = data[key];
+      cleanedData[TRANSFORMED_KEY] = data[key];
     }
   });
 
@@ -87,5 +89,6 @@ function dataProcessor(data) {
 }
 
 d3.csv('data.csv', dataProcessor).then((data) => {
-  console.log("Data Loaded", data);
+  // Globally Initializing Dataset
+  mentalHealthData = data;
 });
