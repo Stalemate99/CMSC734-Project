@@ -1,0 +1,10 @@
+.graph_3 .line {
+  stroke: cadetblue;
+  stroke-width: 2;
+  stroke-dasharray: 3, 3;
+}
+
+.graph_3 .label {
+  font-size: 11px;
+  font-weight: 600;
+}
