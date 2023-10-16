@@ -96,14 +96,14 @@ const MARGIN = {
   t: 10,
   b: 10
 }
-const SVG_WIDTH = 660 - MARGIN.l - MARGIN.r;
-const SVG_HEIGHT = 420 - MARGIN.t - MARGIN.b;
+const SVG_WIDTH = 900 - MARGIN.l - MARGIN.r;
+const SVG_HEIGHT = 450 - MARGIN.t - MARGIN.b;
 
 d3.csv('data.csv', dataProcessor).then((data) => {
   // Globally Initializing Dataset
   mentalHealthData = data;
 
-  generateTask4_8();
+  // generateTask4_8();
   generateTask5_4();
 });
 
@@ -406,18 +406,28 @@ function generateTask5_4() {
   // console.log(nestedData)
 
   // Draw graph
-  const rectWidth = 15;
-  const categoryWidth = 153;
+  const rectWidth = 20;
+  const categoryWidth = 200;
   const padding = 2;
+  const initial_padding_h = 30;
+  const initial_padding_w = 50;
+  const ageGroups = ['18-29', '30-44', '45-59', '>60'];
 
   // Scales
+  const rangeGenerator = ageGroups.map((item, idx) => {
+    return initial_padding_w + (categoryWidth / 2) + (idx * categoryWidth);
+  });
+  rangeGenerator.unshift(initial_padding_w);
+  rangeGenerator.push(SVG_WIDTH - MARGIN.r);
+  ageGroups.unshift('');
+  ageGroups.push('');
+
   const xScale = d3.scaleOrdinal()
-    .domain(['18-29', '30-44', '45-59', '>60'])
-    .range([2, SVG_WIDTH])
+    .domain(ageGroups)
+    .range(rangeGenerator);
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(nestedData, data => d3.max(data.value))])
-    .range([20, SVG_HEIGHT - MARGIN.t])
-
+    .range([2, SVG_HEIGHT - MARGIN.t - initial_padding_h])
     .nice();
   const colorScale = d3.scaleOrdinal()
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -425,6 +435,7 @@ function generateTask5_4() {
 
   const container = d3.select("#main")
     .append("svg")
+    .attr("class", "graph_3_container")
     .attr("width", SVG_WIDTH)
     .attr("height", SVG_HEIGHT)
     .style("margin", MARGIN.t);
@@ -445,13 +456,13 @@ function generateTask5_4() {
     .attr("width", rectWidth)
     .attr("height", data => yScale(data))
     .attr("x", (data, idx) => {
-      const position = padding + (idx * rectWidth) + (padding * idx) + (sectionCount * categoryWidth)
+      let position = initial_padding_w + padding + (idx * rectWidth) + (padding * idx) + (sectionCount * categoryWidth);
       if (idx === 8) {
         sectionCount++;
       }
       return position;
     })
-    .attr("y", data => SVG_HEIGHT - MARGIN.t - yScale(data))
+    .attr("y", data => SVG_HEIGHT - MARGIN.t - yScale(data) - initial_padding_h)
     .attr("fill", (data, idx) => colorScale(idx));
 
   const categoryLines = graph.selectAll(".line")
@@ -461,26 +472,35 @@ function generateTask5_4() {
     .attr("class", "line")
     .attr("d", (data, idx) => {
       if (idx === 0 || idx === 4) return;
-      const xPoint = idx * categoryWidth + padding;
+      const xPoint = idx * categoryWidth + initial_padding_w;
 
-      return `M${xPoint},0 L${xPoint},${SVG_HEIGHT - MARGIN.t}`;
+      return `M${xPoint},0 L${xPoint},${SVG_HEIGHT - MARGIN.t - initial_padding_h}`;
     });
 
   // Axes
-  const xAxis = d3.axisBottom(xScale).ticks(4);
+  const xAxis = d3.axisBottom(xScale);
+  const yAxis = d3.axisLeft(yScale);
 
-  container.append("g")
+  d3.selectAll(".graph_3_container")
+    .append("g")
     .attr("class", "axis")
+    .attr("transform", `translate(0,${SVG_HEIGHT - initial_padding_h - MARGIN.b + padding})`)
     .call(xAxis);
+  d3.selectAll(".graph_3_container")
+    .append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(${initial_padding_w - padding},0)`)
+    .call(yAxis);
 
   // Labels
   container.append('text')
     .attr('class', 'label')
-    .attr('transform', `translate(${SVG_WIDTH / 2},${SVG_HEIGHT})`)
+    .attr('transform', `translate(${SVG_WIDTH / 2},${SVG_HEIGHT - padding - padding})`)
     .text('Age Groups');
   container.append('text')
     .attr('class', 'label')
-    .attr('transform', `translate(10,${SVG_HEIGHT / 2}) rotate(270)`)
+    .attr("text-anchor", "middle")
+    .attr('transform', `translate(20,${SVG_HEIGHT / 2 - padding}) rotate(270)`)
     .text('Various Mental Illness');
 
 }
