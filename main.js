@@ -103,106 +103,155 @@ d3.csv('data.csv', dataProcessor).then((data) => {
   // Globally Initializing Dataset
   mentalHealthData = data;
 
-  // generateTask4_8();
+  generateTask2_5();
+  generateTask4_8();
   generateTask5_4();
 });
 
-// function graphForTask2_5(){
-//   const MENTAL_ILLNESS = [
-//     "anxiety",
-//     "compulsive_behavior",
-//     "depression",
-//     "lack_of_concentration",
-//     "legally_disabled",
-//     "mood_swings",
-//     "obsessive_thinking",
-//     "panic_attacks",
-//     "tiredness"
-//   ];
+function generateTask2_5() {
 
-//   const MENTAL_ILLNESS_DATA = MENTAL_ILLNESS.reduce((count, illness) => {
-//     count[illness] = 0;
-//     return count;
-//   }, { count: 0 });
+  // Processing Data
+  const MENTAL_ILLNESS = [
+    "anxiety",
+    "compulsive_behavior",
+    "depression",
+    "lack_of_concentration",
+    "legally_disabled",
+    "mood_swings",
+    "obsessive_thinking",
+    "panic_attacks",
+    "tiredness"
+  ];
 
-//   mentalHealthData.forEach(rowData => {
-//     if (!rowData.employment_status) {
-//       MENTAL_ILLNESS_DATA.count += 1;
-//       Object.keys(MENTAL_ILLNESS_DATA).forEach(illness => {
-//         if (illness !== "count" && !!rowData[illness]) MENTAL_ILLNESS_DATA[illness] += 1;
-//       })
-//     }
-//   });
+  const HOUSEHOLD_INCOME_CATEGORIES = [
+    "$0-$9,999",
+    "$10,000-$24,999",
+    "$25,000-$49,999",
+    "$50,000-$74,999",
+    "$75,000-$99,999",
+    "$100,000-$124,999",
+    "$125,000-$149,999",
+    "$150,000-$174,999",
+    "$175,000-$199,999",
+    "$200,000+"
+  ];
 
-//   const GRAPH_DATA_KEYS = [
-//     ...MENTAL_ILLNESS,
-//     "unemployment_count"
-//   ];
+  const graphData = d3.nest()
+    .key((data) => data.household_income)
+    .key(data => data.employment_status)
+    .rollup((values) => {
+      if (values.employment_status) return;
+      const illnessValues = [];
 
-//   const GRAPH_INITIAL_OBJ = GRAPH_DATA_KEYS.reduce((result, key) => {
-//     result[key] = 0;
-//     return result;
-//   }, {});
+      MENTAL_ILLNESS.forEach(illness => {
+        illnessValues.push(d3.sum(values, data => data[illness]));
+      });
 
-//   const HOUSEHOLD_INCOME_DATA = d3.nest()
-//     .key((data) => data.household_income)
-//     .entries(mentalHealthData);
+      return illnessValues;
+    })
+    .entries(mentalHealthData);
 
-//   console.log(HOUSEHOLD_INCOME_DATA, "Before Transformation");
+  console.log(graphData)
 
-//   const TRANSFORMED_HOUSEHOLD_INCOME_DATA = HOUSEHOLD_INCOME_DATA.map((entries) => {
-//     let ROW_ENTRY = { ...GRAPH_INITIAL_OBJ };
+  // Drawing Graph 1
+  const SVG_WIDTH = 700;
+  const SVG_HEIGHT = 700;
+  const initialPaddingVertical = 40;
+  const initialPaddingHorizontal = 100;
+  const categoryWidth = 60;
+  const padding = 3;
 
-//     entries.values.forEach(item => {
-//       Object.keys(item).forEach(row => {
-//         if (row in ROW_ENTRY && !!item[row]) {
-//           ROW_ENTRY[row] += 1;
-//         }
-//       });
+  // Scales
+  const rangeGenerator = HOUSEHOLD_INCOME_CATEGORIES.map((item, idx) => {
+    return initialPaddingHorizontal + (categoryWidth / 2) + (idx * categoryWidth);
+  });
+  rangeGenerator.unshift(initialPaddingHorizontal);
+  rangeGenerator.push(SVG_WIDTH - MARGIN.r);
+  HOUSEHOLD_INCOME_CATEGORIES.unshift('');
+  HOUSEHOLD_INCOME_CATEGORIES.push('');
+  const xScaleExtent = d3.extent(graphData, (data) => {
+    if (data.values[0].key === 'false') return d3.extent(data.values[0].value);
+    else return d3.extent(data.values[1].value);
+  });
+  const xScale = d3.scaleLinear()
+    .domain([0, 30])
+    .range([initialPaddingHorizontal, SVG_WIDTH]);
+  const yScale = d3.scaleOrdinal()
+    .domain(HOUSEHOLD_INCOME_CATEGORIES)
+    .range(rangeGenerator);
+  const radiusScale = (data) => d3.scaleLinear()
+    .domain(data)
+    .range([padding, (categoryWidth / 2) - padding]);
+  const colorScale = d3.scaleOrdinal()
+    .domain(MENTAL_ILLNESS)
+    .range(d3.schemeTableau10);
 
-//       if (!item.employment_status) ROW_ENTRY["unemployment_count"] += 1;
-//       ROW_ENTRY.household_income = entries.key;
-//     });
+  // Graph Components
+  const container = d3.select("#main")
+    .append("svg")
+    .attr("width", SVG_WIDTH)
+    .attr("height", SVG_HEIGHT)
+    .style("margin", MARGIN.t);
 
-//     return ROW_ENTRY;
-//   });
+  const graph = container.selectAll(".graph_1")
+    .data(graphData)
+    .enter()
+    .append("g")
+    .attr("class", "graph_1");
 
-//   console.log("After Transformation", TRANSFORMED_HOUSEHOLD_INCOME_DATA);
+  const lines = graph.selectAll(".line")
+    .data(data => data.key)
+    .enter()
+    .append('path')
+    .attr("class", ".line")
+    .attr("d", (data, idx) => {
+      return `M${initialPaddingHorizontal},${initialPaddingVertical + categoryWidth + (idx * categoryWidth)} L${SVG_WIDTH},${categoryWidth + initialPaddingVertical + (idx * categoryWidth)}`
+    })
+    .attr("fill", "none")
+    .attr("stroke", "cadetblue")
+    .attr("stroke-width", "2")
+    .attr("stroke-dasharray", "5,5");
 
-//   const GRAPH_DATA = TRANSFORMED_HOUSEHOLD_INCOME_DATA.map(item => Object.entries(item));
+  const illnessPlots = graph.selectAll(".plots")
+    .data(data => {
+      if (data.values[0].key === 'false') return data.values[0].value;
+      else return data.values[1].value;
+    })
+    .enter()
+    .append("circle")
+    .attr("class", "plots")
+    .attr("r", 5)
+    .attr("cx", (data, idx) => {
+      return xScale(data);
+    })
+    .attr("cy", (data, idx) => initialPaddingVertical + (idx * categoryWidth) + yScale(data))
+    .attr("fill", data => colorScale(data));
 
-//   console.log("Final graph data", GRAPH_DATA);
+  // Axes
+  const xAxis = d3.axisTop(xScale);
+  const yAxis = d3.axisLeft(yScale);
 
-//   // Drawing Graph 1
-//   const TASK2_5 = d3.select("#main")
-//     .append("svg")
-//     .attr("width", SVG_WIDTH)
-//     .attr("height", SVG_HEIGHT)
-//     .style("margin", MARGIN.t);
+  graph.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(-5,${initialPaddingVertical})`)
+    .call(xAxis);
+  graph.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(${initialPaddingHorizontal},0)`)
+    .call(yAxis);
 
-//   const MIN_UNEMPLOYMENT_COUNT = d3.min(TRANSFORMED_HOUSEHOLD_INCOME_DATA, data => data.unemployment_count);
-//   const MAX_UNEMPLOYMENT_COUNT = d3.max(TRANSFORMED_HOUSEHOLD_INCOME_DATA, data => data.unemployment_count);
-
-//   const YSCALE = d3.scaleLinear()
-//     .domain([MIN_UNEMPLOYMENT_COUNT, MAX_UNEMPLOYMENT_COUNT])
-//     .range([50, 450]);
-
-//   const BUBBLE_GRAPH = TASK2_5.append("g")
-//     .attr("class", "bubble_graph")
-//     .selectAll("g")
-//     .data(GRAPH_DATA)
-//     .enter();
-
-//   const BUBBLES = BUBBLE_GRAPH.selectAll("circle")
-//     .data(d => [...d])
-//     .enter()
-//     .append('circle')
-//     .style('fill', 'blue')
-//     .style('opacity', 0.8)
-//     .attr('r', '5')
-//     .attr('cx', (data, idx) => 10 + idx * 50)
-//     .attr('cy', data => YSCALE(data.unemployment_count));
-// }
+  // Labels
+  graph.append("text")
+    .attr("class", "label")
+    .attr("text-anchor", "middle")
+    .attr("transform", `translate(0,${SVG_HEIGHT / 2}) rotate(270)`)
+    .text("Household Income Categories");
+  graph.append("text")
+    .attr("class", "label")
+    .attr("text-anchor", "middle")
+    .attr("transform", `translate(${SVG_WIDTH / 2},${initialPaddingVertical / 2})`)
+    .text("Mental Illnesses");
+}
 
 function generateTask4_8() {
   // Task 4-8 Star chart depicting various socioeconomic factors and
