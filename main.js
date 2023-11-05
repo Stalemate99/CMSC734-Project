@@ -57,12 +57,12 @@ const BOOLEAN_KEYS = [
   "mood_swings",
   "panic_attacks",
   "compulsive_behavior",
+  "lack_of_concentration",
   "tiredness",
   "hospitalized_for_mental_illness",
   "legally_disabled",
   "gap_in_resume",
   "employment_status",
-  "unemployment_status",
   "learning_status",
   "food_stamps",
   "section_8_housing",
@@ -76,6 +76,8 @@ function dataProcessor(data) {
   Object.keys(data).forEach(key => {
     const TRANSFORMED_KEY = HEADER_TO_KEY_HASH[key];
 
+    if (TRANSFORMED_KEY === "unemployment_status") return;
+
     if (NUMERICAL_KEYS.includes(TRANSFORMED_KEY)) {
       cleanedData[TRANSFORMED_KEY] = +data[key];
     } else if (BOOLEAN_KEYS.includes(TRANSFORMED_KEY)) {
@@ -88,10 +90,19 @@ function dataProcessor(data) {
   return cleanedData;
 }
 
+const MARGIN = {
+  l: 10,
+  r: 10,
+  t: 10,
+  b: 10
+}
+const SVG_WIDTH = 900 - MARGIN.l - MARGIN.r;
+const SVG_HEIGHT = 450 - MARGIN.t - MARGIN.b;
+
 d3.csv('data.csv', dataProcessor).then((data) => {
   // Globally Initializing Dataset
   mentalHealthData = data;
-  
+
   generateTask2_5();
   generateTask4_8();
   generateTask5_4();
@@ -542,4 +553,3 @@ function generateTask5_4() {
     .text('Various Mental Illness');
 
 }
-
