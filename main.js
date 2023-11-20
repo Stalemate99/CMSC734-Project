@@ -1,10 +1,22 @@
-// Creating basic designs
+// Global Constants
+var barToolTip = d3.tip()
+  .attr("class", "d3-tip")
+  .offset([15, 10])
+  .html(function (d) {
+    return "<h5 class='barValue'>" + d + " %</h5>";
+  });
+
+
 
 // Utility functions
 function convertStringToBoolean(val) {
   if (val === "0") return false;
 
   return true;
+}
+
+function getPercentage(part, total) {
+  return +((part / total) * 100).toFixed(2);
 }
 
 const HEADER_TO_KEY_HASH = {
@@ -71,6 +83,8 @@ const BOOLEAN_KEYS = [
   "pc_status"
 ];
 
+const MENTAL_ILLNESS = ['anxiety', 'compulsive_behavior', 'depression', 'lack_of_concentration', 'legally_disabled', 'mood_swings', 'obsessive_thinking', 'panic_attacks', 'tiredness'];
+
 function dataProcessor(data) {
   const cleanedData = {};
   Object.keys(data).forEach(key => {
@@ -85,6 +99,13 @@ function dataProcessor(data) {
     } else {
       cleanedData[TRANSFORMED_KEY] = data[key];
     }
+
+    // Special condition for checking mental health status
+    MENTAL_ILLNESS.forEach(illness => {
+      if (!cleanedData.mental_illness_status && cleanedData[illness]) {
+        cleanedData.mental_illness_status = true;
+      }
+    });
   });
 
   return cleanedData;
@@ -95,163 +116,38 @@ const MARGIN = {
   r: 10,
   t: 10,
   b: 10
-}
-const SVG_WIDTH = 900 - MARGIN.l - MARGIN.r;
-const SVG_HEIGHT = 450 - MARGIN.t - MARGIN.b;
+};
 
 d3.csv('data.csv', dataProcessor).then((data) => {
   // Globally Initializing Dataset
   mentalHealthData = data;
+  maxMentalIllnessCount = 0;
+  maxUnemploymentCount = 0;
+  maxMentalIllnessAndUnemployedCount = 0;
+  maxMentalIllnessAndEmployedCount = 0;
 
-  generateTask2_5();
-  generateTask4_8();
+  // Updating maximum counts
+  mentalHealthData.forEach(item => {
+    const { mental_illness_status, employment_status } = item;
+    if (mental_illness_status) {
+      maxMentalIllnessCount += 1;
+    }
+    if (!employment_status) {
+      maxUnemploymentCount += 1;
+    }
+    if (!employment_status && mental_illness_status) {
+      maxMentalIllnessAndUnemployedCount += 1;
+    }
+    if (employment_status && mental_illness_status) {
+      maxMentalIllnessAndEmployedCount += 1;
+    }
+  });
+
+  console.log(maxMentalIllnessAndEmployedCount, maxMentalIllnessAndUnemployedCount, maxMentalIllnessCount, maxUnemploymentCount);
+
+  // generateTask4_8();
   generateTask5_4();
 });
-
-function generateTask2_5() {
-
-  // Processing Data
-  const MENTAL_ILLNESS = [
-    "anxiety",
-    "compulsive_behavior",
-    "depression",
-    "lack_of_concentration",
-    "legally_disabled",
-    "mood_swings",
-    "obsessive_thinking",
-    "panic_attacks",
-    "tiredness"
-  ];
-
-  const HOUSEHOLD_INCOME_CATEGORIES = [
-    "$0-$9,999",
-    "$10,000-$24,999",
-    "$25,000-$49,999",
-    "$50,000-$74,999",
-    "$75,000-$99,999",
-    "$100,000-$124,999",
-    "$125,000-$149,999",
-    "$150,000-$174,999",
-    "$175,000-$199,999",
-    "$200,000+"
-  ];
-
-  const graphData = d3.nest()
-    .key((data) => data.household_income)
-    .key(data => data.employment_status)
-    .rollup((values) => {
-      if (values.employment_status) return;
-      const illnessValues = [];
-
-      MENTAL_ILLNESS.forEach(illness => {
-        illnessValues.push(d3.sum(values, data => data[illness]));
-      });
-
-      return illnessValues;
-    })
-    .entries(mentalHealthData);
-
-  console.log(graphData)
-
-  // Drawing Graph 1
-  const SVG_WIDTH = 700;
-  const SVG_HEIGHT = 700;
-  const initialPaddingVertical = 40;
-  const initialPaddingHorizontal = 100;
-  const categoryWidth = 60;
-  const padding = 3;
-
-  // Scales
-  const rangeGenerator = HOUSEHOLD_INCOME_CATEGORIES.map((item, idx) => {
-    return initialPaddingHorizontal + (categoryWidth / 2) + (idx * categoryWidth);
-  });
-  rangeGenerator.unshift(initialPaddingHorizontal);
-  rangeGenerator.push(SVG_WIDTH - MARGIN.r);
-  HOUSEHOLD_INCOME_CATEGORIES.unshift('');
-  HOUSEHOLD_INCOME_CATEGORIES.push('');
-  const xScaleExtent = d3.extent(graphData, (data) => {
-    if (data.values[0].key === 'false') return d3.extent(data.values[0].value);
-    else return d3.extent(data.values[1].value);
-  });
-  const xScale = d3.scaleLinear()
-    .domain([0, 30])
-    .range([initialPaddingHorizontal, SVG_WIDTH]);
-  const yScale = d3.scaleOrdinal()
-    .domain(HOUSEHOLD_INCOME_CATEGORIES)
-    .range(rangeGenerator);
-  const radiusScale = (data) => d3.scaleLinear()
-    .domain(data)
-    .range([padding, (categoryWidth / 2) - padding]);
-  const colorScale = d3.scaleOrdinal()
-    .domain(MENTAL_ILLNESS)
-    .range(d3.schemeTableau10);
-
-  // Graph Components
-  const container = d3.select("#main")
-    .append("svg")
-    .attr("width", SVG_WIDTH)
-    .attr("height", SVG_HEIGHT)
-    .style("margin", MARGIN.t);
-
-  const graph = container.selectAll(".graph_1")
-    .data(graphData)
-    .enter()
-    .append("g")
-    .attr("class", "graph_1");
-
-  const lines = graph.selectAll(".line")
-    .data(data => data.key)
-    .enter()
-    .append('path')
-    .attr("class", ".line")
-    .attr("d", (data, idx) => {
-      return `M${initialPaddingHorizontal},${initialPaddingVertical + categoryWidth + (idx * categoryWidth)} L${SVG_WIDTH},${categoryWidth + initialPaddingVertical + (idx * categoryWidth)}`
-    })
-    .attr("fill", "none")
-    .attr("stroke", "cadetblue")
-    .attr("stroke-width", "2")
-    .attr("stroke-dasharray", "5,5");
-
-  const illnessPlots = graph.selectAll(".plots")
-    .data(data => {
-      if (data.values[0].key === 'false') return data.values[0].value;
-      else return data.values[1].value;
-    })
-    .enter()
-    .append("circle")
-    .attr("class", "plots")
-    .attr("r", 5)
-    .attr("cx", (data, idx) => {
-      return xScale(data);
-    })
-    .attr("cy", (data, idx) => initialPaddingVertical + (idx * categoryWidth) + yScale(data))
-    .attr("fill", data => colorScale(data));
-
-  // Axes
-  const xAxis = d3.axisTop(xScale);
-  const yAxis = d3.axisLeft(yScale);
-
-  graph.append("g")
-    .attr("class", "axis")
-    .attr("transform", `translate(-5,${initialPaddingVertical})`)
-    .call(xAxis);
-  graph.append("g")
-    .attr("class", "axis")
-    .attr("transform", `translate(${initialPaddingHorizontal},0)`)
-    .call(yAxis);
-
-  // Labels
-  graph.append("text")
-    .attr("class", "label")
-    .attr("text-anchor", "middle")
-    .attr("transform", `translate(0,${SVG_HEIGHT / 2}) rotate(270)`)
-    .text("Household Income Categories");
-  graph.append("text")
-    .attr("class", "label")
-    .attr("text-anchor", "middle")
-    .attr("transform", `translate(${SVG_WIDTH / 2},${initialPaddingVertical / 2})`)
-    .text("Mental Illnesses");
-}
 
 function generateTask4_8() {
   // Task 4-8 Star chart depicting various socioeconomic factors and
@@ -428,58 +324,73 @@ function generateTask4_8() {
 }
 
 function generateTask5_4() {
-  // Task 5-4 - Bar Chart for Various Mental Illness vs Age groups
+  // Task 5-4 - Bar Chart for Various Mental Illness vs Age groups for Unemployed Folks
 
   // Data Pracessing
   const filteredData = mentalHealthData.map(item => {
-    return [item.age, item.mental_illness_status, item.anxiety, item.compulsive_behavior, item.depression, item.lack_of_concentration, item.legally_disabled, item.mood_swings, item.obsessive_thinking, item.panic_attacks, item.tiredness];
+    return [item.age, item.mental_illness_status, item.employment_status, item.anxiety, item.compulsive_behavior, item.depression, item.lack_of_concentration, item.legally_disabled, item.mood_swings, item.obsessive_thinking, item.panic_attacks, item.tiredness];
   });
 
   const nestedData = d3.nest()
     .key(data => data[0])
     .rollup(values => {
-      const result = [];
+      const temp = [];
 
-      for (let i = 2; i < 11; i++) {
+      for (let i = 1; i < 12; i++) {
         const total = d3.sum(values, data => {
-          if (data[i]) return data[i];
+          if (i === 2 && !data[i]) return !data[i];
+          if (!data[2] && data[i]) return data[i];
         });
 
-        result.push(total);
+        temp.push(total);
       }
+
+      const result = temp.map((item, idx) => {
+        if (idx > 1) {
+          return getPercentage(item, temp[0]);
+        }
+      }).slice(2);
 
       return result
     })
     .entries(filteredData);
 
-  // console.log(nestedData)
+  console.log(nestedData);
 
   // Draw graph
-  const rectWidth = 20;
-  const categoryWidth = 200;
-  const padding = 2;
-  const initial_padding_h = 30;
-  const initial_padding_w = 50;
+  const categoryWidth = 250;
+  const padding = 20;
+  const SVG_WIDTH = (categoryWidth * 4) + (padding * 2);
+  const SVG_HEIGHT = 300 + (padding * 3);
   const ageGroups = ['18-29', '30-44', '45-59', '>60'];
 
   // Scales
-  const rangeGenerator = ageGroups.map((item, idx) => {
-    return initial_padding_w + (categoryWidth / 2) + (idx * categoryWidth);
+  const barScale = d3.scaleBand()
+    .domain([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    .range([0, categoryWidth])
+    .paddingInner(0.2)
+    .paddingOuter(0.25)
+    .align(0.5)
+    .round(true);
+  const ageRangeValues = [0, 1, 2, 3, 4, 5].map((age) => {
+    if (!age) return age;
+    if (age === 5) return categoryWidth * 4 - (MARGIN.l);
+    return (categoryWidth * (age - 1)) + (categoryWidth / 2);
   });
-  rangeGenerator.unshift(initial_padding_w);
-  rangeGenerator.push(SVG_WIDTH - MARGIN.r);
-  ageGroups.unshift('');
-  ageGroups.push('');
+  const ageGroupScale = d3.scaleOrdinal()
+    .domain(['', ...ageGroups, ''])
+    .range(ageRangeValues);
 
-  const xScale = d3.scaleOrdinal()
-    .domain(ageGroups)
-    .range(rangeGenerator);
   const yScale = d3.scaleLinear()
-    .domain([0, d3.max(nestedData, data => d3.max(data.value))])
-    .range([2, SVG_HEIGHT - MARGIN.t - initial_padding_h])
+    .domain([0, 100])
+    .range([2, SVG_HEIGHT - (padding * 3)])
+    .nice();
+  const inverseYScale = d3.scaleLinear()
+    .domain([0, 100])
+    .range([SVG_HEIGHT - (padding * 3), 2])
     .nice();
   const colorScale = d3.scaleOrdinal()
-    .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    .domain([0, 1, 2, 3, 4, 5, 6, 7, 8])
     .range(d3.schemeTableau10);
 
   const container = d3.select("#main")
@@ -489,6 +400,8 @@ function generateTask5_4() {
     .attr("height", SVG_HEIGHT)
     .style("margin", MARGIN.t);
 
+  container.call((barToolTip));
+
   const graph = container.selectAll(".graph_3")
     .data(nestedData)
     .enter()
@@ -496,60 +409,80 @@ function generateTask5_4() {
     .attr("class", "graph_3");
 
   let sectionCount = 0;
+  function getXValues(idx) {
+    if (idx === 8) {
+      sectionCount += 1;
+      return barScale(idx + 1) + ((sectionCount - 1) * categoryWidth) + (padding * 2);
+    }
+
+    return barScale(idx + 1) + (sectionCount * categoryWidth) + (padding * 2);
+  }
 
   const bars = graph.selectAll(".bar")
     .data(d => [...d.value])
     .enter()
     .append("rect")
     .attr("class", "bar")
-    .attr("width", rectWidth)
+    .attr("width", barScale.bandwidth())
     .attr("height", data => yScale(data))
-    .attr("x", (data, idx) => {
-      let position = initial_padding_w + padding + (idx * rectWidth) + (padding * idx) + (sectionCount * categoryWidth);
-      if (idx === 8) {
-        sectionCount++;
-      }
-      return position;
+    .attr("x", (data, idx) => getXValues(idx))
+    .attr("y", (data) => {
+      return inverseYScale(data) + padding - 2;
     })
-    .attr("y", data => SVG_HEIGHT - MARGIN.t - yScale(data) - initial_padding_h)
-    .attr("fill", (data, idx) => colorScale(idx));
+    .attr("fill", (data, idx) => colorScale(idx))
+    .on('mouseover', function (data) {
+      barToolTip.show(data);
+      const hoveredElement = d3.select(this);
+
+      hoveredElement.classed('barHover', true);
+
+      hoveredElement.append('text')
+        .attr('class', 'barValue')
+        .attr('dx', '1em')
+        .attr('dy', '-2em')
+        .text(`${data} %`);
+    })
+    .on('mouseout', function (data) {
+      barToolTip.hide(data);
+      const hoveredElement = d3.select(this);
+      hoveredElement.classed('barHover', false)
+        .select('text.barValue').remove();
+    });
 
   const categoryLines = graph.selectAll(".line")
-    .data(d => { return d.key; })
+    .data([1, 2, 3])
     .enter()
     .append("path")
     .attr("class", "line")
     .attr("d", (data, idx) => {
-      if (idx === 0 || idx === 4) return;
-      const xPoint = idx * categoryWidth + initial_padding_w;
-
-      return `M${xPoint},0 L${xPoint},${SVG_HEIGHT - MARGIN.t - initial_padding_h}`;
+      const xPoint = categoryWidth + (categoryWidth * idx) + (padding * 2);
+      return `M${xPoint},${padding + 2} L${xPoint},${SVG_HEIGHT - (padding * 2)}`;
     });
 
   // Axes
-  const xAxis = d3.axisBottom(xScale);
-  const yAxis = d3.axisLeft(yScale);
+  const xAxis = d3.axisBottom(ageGroupScale);
+  const yAxis = d3.axisLeft(inverseYScale);
 
   d3.selectAll(".graph_3_container")
     .append("g")
     .attr("class", "axis")
-    .attr("transform", `translate(0,${SVG_HEIGHT - initial_padding_h - MARGIN.b + padding})`)
+    .attr("transform", `translate(${padding * 2},${SVG_HEIGHT - (padding * 2)})`)
     .call(xAxis);
   d3.selectAll(".graph_3_container")
     .append("g")
     .attr("class", "axis")
-    .attr("transform", `translate(${initial_padding_w - padding},0)`)
+    .attr("transform", `translate(${padding * 2},${padding - 2})`)
     .call(yAxis);
 
   // Labels
   container.append('text')
     .attr('class', 'label')
-    .attr('transform', `translate(${SVG_WIDTH / 2},${SVG_HEIGHT - padding - padding})`)
+    .attr('transform', `translate(${SVG_WIDTH / 2},${SVG_HEIGHT - padding})`)
     .text('Age Groups');
   container.append('text')
     .attr('class', 'label')
     .attr("text-anchor", "middle")
-    .attr('transform', `translate(20,${SVG_HEIGHT / 2 - padding}) rotate(270)`)
+    .attr('transform', `translate(${10},${SVG_HEIGHT / 2 - padding}) rotate(270)`)
     .text('Various Mental Illness');
 
 }
