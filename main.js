@@ -145,13 +145,13 @@ d3.csv('data.csv', dataProcessor).then((data) => {
 
   console.log(maxMentalIllnessAndEmployedCount, maxMentalIllnessAndUnemployedCount, maxMentalIllnessCount, maxUnemploymentCount);
 
-  // generateTask4_8();
-  generateTask5_4();
+  generateTask4_8();
+  // generateTask5_4();
 });
 
 function generateTask4_8() {
-  // Task 4-8 Star chart depicting various socioeconomic factors and
-  // MH contributions
+  // Task 4-8 Radar plot depicting various socioeconomic factors and
+  // MH illness percentages in each category.
 
   // Data Processing
   const SOCIOECONOMIC_FACTORS = [
@@ -169,157 +169,178 @@ function generateTask4_8() {
     "Some Phd",
     "Some Masters",
   ];
-
-  const graphInitialObject = SOCIOECONOMIC_FACTORS.reduce((obj, key) => {
-    obj[key] = 0;
-    return obj;
-  }, {});
+  const socioeconomicFactorsLabelMap = {
+    "education_status": {
+      label: "Educated",
+      info: "Percentage of population who have completed an undergradute program and have mental illness."
+    },
+    "unemployed_status": {
+      label: "Unemployed",
+      info: "Percentage of population who are unemployed and have mental illness."
+    },
+    "food_stamps": {
+      label: "Use Food Stamps",
+      info: "Percentage of population who use food stamps and have mental illness."
+    },
+    "internet_status": {
+      label: "Internet Access",
+      info: "Percentage of population who have internet access and have mental illness."
+    },
+    "live_with_parents": {
+      label: "Live with parents",
+      info: "Percentage of population who live their parents and have mental illness."
+    },
+    "section_8_housing": {
+      label: "Live in Section 8 Housing",
+      info: "Percentage of population who liive in a section 8 housing and have mental illness."
+    }
+  }
 
   const filteredData = [];
+  const totalData = [];
   mentalHealthData.forEach(item => {
-    if (item.mental_illness_status) filteredData.push({
+    const data = {
       education_status: COMPLETED_EDUCATION.includes(item.education) ? true : false,
       unemployed_status: item.employment_status ? false : true,
       food_stamps: item.food_stamps,
       internet_status: item.internet_status,
       live_with_parents: item.live_with_parents,
       section_8_housing: item.section_8_housing,
-    });
+    };
+    if (item.mental_illness_status) filteredData.push(data);
+    totalData.push(data);
   });
 
-  const graphData = filteredData.reduce((result, entry) => {
-    Object.keys(entry).forEach(key => {
-      if (entry[key]) result[key] += 1;
-    });
+  const graphData = {};
+  // Out of X people under the category, Y are mentally ill
+  SOCIOECONOMIC_FACTORS.forEach(category => {
+    const mentalIllnessCount = d3.sum(filteredData, (data => data[category]));
+    const totalCount = d3.sum(totalData, (data => data[category]))
+    graphData[category] = getPercentage(mentalIllnessCount, totalCount);
+  });
+  // // Out of X mentally ill people Y are in this category
+  // SOCIOECONOMIC_FACTORS.forEach(category => {
+  //   const mentalIllnessCount = d3.sum(filteredData, (data => data[category]));
+  //   graphData[category] = getPercentage(mentalIllnessCount, maxMentalIllnessCount);
+  // });
 
-    return result;
-  }, graphInitialObject);
+  console.log(graphData);
 
   // Draw graph
-  let SVG_WIDTH = 500;
-  let SVG_HEIGHT = 500;
-  const radius = SVG_WIDTH / 2;
-  const angle = 360 / Object.keys(graphData).length;
-  const line = d3.lineRadial()
-    .angle((d, i) => i * angle)
-    .radius(d => ((d / 2) * (radius / 100)));
+  const SVG_WIDTH = 700;
+  const SVG_HEIGHT = 700;
+  const plotWidth = SVG_WIDTH - 100;
+  const plotHeight = SVG_HEIGHT - 100;
+  const softPadding = 10;
+  const padding = 20;
 
   // Scales
-  const radiusScale = d3.scaleLinear()
-    .domain(d3.extent(Object.values(graphData)))
-    .range([(radius - MARGIN.t) / 2, radius - MARGIN.t])
-  // .nice();
+  const percentageToRadialScale = d3.scaleLinear()
+    .domain([0, 100])
+    .range([0, 10]);
+  const radialScale = d3.scaleLinear()
+    .domain([0, 10])
+    .range([0, plotWidth / 2])
+    .nice();
+  const ticks = [2, 4, 6, 8, 10];
 
-  const container = d3.select("#main")
+  // Utility Functions
+  function angleToCoordinate(angle, value) {
+    let x = Math.cos(angle) * radialScale(value);
+    let y = Math.sin(angle) * radialScale(value);
+    return { "x": SVG_WIDTH / 2 + x, "y": SVG_HEIGHT / 2 - y };
+  }
+
+  function getPathCoordinates() {
+    let coordinates = [];
+    Object.keys(graphData).forEach((category, idx) => {
+      const angle = (Math.PI / 2) + (2 * Math.PI * idx / SOCIOECONOMIC_FACTORS.length);
+      coordinates.push(angleToCoordinate(angle, percentageToRadialScale(graphData[category])));
+    });
+
+    return coordinates;
+  }
+
+  const graphPlotData = [...getPathCoordinates(), getPathCoordinates()[0]];
+
+  // Drawing Graph
+  const line = d3.line()
+    .x(data => data.x)
+    .y(data => data.y);
+  const container = d3.select("#radar")
     .append("svg")
     .attr("width", SVG_WIDTH)
     .attr("height", SVG_HEIGHT)
     .style("margin", MARGIN.t);
 
-  const graph = container.append("g")
-    .attr("class", "graph_2")
-    .attr("transform", `translate(${SVG_WIDTH / 2}, ${SVG_HEIGHT / 2})`);
-
-  const starGraphBg = graph.selectAll(".graph_2 .line_bg")
-    .data(Object.values(graphData))
+  const backgroundCircles = container.selectAll("circle")
+    .data(ticks)
     .enter()
+    .append("circle")
+    .attr("cx", SVG_WIDTH / 2)
+    .attr("cy", SVG_HEIGHT / 2)
+    .attr("fill", "none")
+    .attr("stroke", "black")
+    .attr("r", data => radialScale(data));
+
+  const radarPath = container
+    .datum(graphPlotData)
     .append("path")
-    .attr("class", "line_bg")
-    .attr("d", (data) => {
-      return `M0,0 L0,${radius - MARGIN.t}`
-    })
-    .attr("transform", (data, idx) => {
-      return `rotate(${(idx * angle)})`;
-    })
-    .style("stroke", "grey")
-    .style("stroke-width", 2)
-    .style("fill", "none");
+    .attr("d", line)
+    .attr("stroke-width", 3)
+    .attr("stroke", "red")
+    .attr("fill", "lightsalmon")
+    .attr("stroke-opacity", 1)
+    .attr("opacity", 0.75);
 
-  const starGraphBgConnector = graph.append("path")
-    .attr("d", () => {
-      const r = radius - MARGIN.t;
-      let point1 = [0, r];
-      let point2 = [(r / 2) * Math.sqrt(3), r / 2];
-      let point4 = [0, -r];
-      let point5 = [-point2[0], -point2[1]];
+  // Axes
+  const axesData = Object.keys(graphData).map((category, idx) => {
+    let angle = (Math.PI / 2) + (Math.PI * 2 * idx / Object.keys(graphData).length);
+    return {
+      name: socioeconomicFactorsLabelMap[category].label,
+      angle,
+      line_coord: angleToCoordinate(angle, 10),
+      label_coord: angleToCoordinate(angle, 10.5)
+    };
+  });
 
-      return `M0,${r} L${point2[0]},${point2[1]} v${-r} L${point4[0]},${point4[1]} L${point5[0]},${point5[1]} v${r} L${point1[0]},${point1[1]}`;
-    })
-    .style("stroke", "grey")
-    .style("stroke-width", 2)
-    .style("fill", "none");
-
-  const starGraph = graph.selectAll(".graph_2 .line")
-    .data(Object.values(graphData))
+  container.selectAll("line")
+    .data(axesData)
     .enter()
-    .append("path")
-    .attr("class", "line")
-    .attr("d", (data) => {
-      return `M0,0 L0,${radiusScale(data)}`
-    })
-    .attr("transform", (data, idx) => {
-      return `rotate(${(idx * angle)})`;
-    })
-    .style("stroke", "black")
-    .style("stroke-width", 3)
-    .style("fill", "none");
+    .append("line")
+    .attr("x1", SVG_WIDTH / 2)
+    .attr("y1", SVG_HEIGHT / 2)
+    .attr("x2", data => data.line_coord.x)
+    .attr("y2", data => data.line_coord.y)
+    .attr("stroke", "black");
 
-  const starGraphConnector = graph.append("path")
-    .attr("d", () => {
-      const r = radiusScale(radius - MARGIN.t);
-      const points = Object.values(graphData).map(item => radiusScale(item));
-      const m = Math.sqrt(3) / 2;
-
-      let pointString = `M0,${points[0]} L${points[1] * m - MARGIN.t - MARGIN.t - MARGIN.t - MARGIN.t},${points[1] / 2 - MARGIN.t - MARGIN.t - 5} L${points[2] * m + MARGIN.t},${-points[2] / 2 - 5} L0,${-points[3]} L${-points[4] * m + MARGIN.t},${-points[4] / 2 + 5} L${-points[5] * m - MARGIN.t - MARGIN.t - MARGIN.t - MARGIN.t},${points[5] / 2 + MARGIN.t + MARGIN.t + 5} Z`;
-
-      return pointString;
-    })
-    .style("stroke", "blue")
-    .style("stroke-width", 3)
-    .style("fill", "none");
-
-  graph.selectAll(".graph_2 .label")
-    .data(Object.entries(graphData))
+  // Labels
+  const backgroundCircleLabels = container.selectAll(".bgCircleLabel")
+    .data(ticks)
     .enter()
     .append("text")
-    .attr("class", "label")
+    .attr("class", "bgCircleLabel")
+    .attr("x", SVG_WIDTH / 2 + 5)
+    .attr("y", data => (SVG_HEIGHT / 2) - radialScale(data) + padding)
+    // .attr("text-anchor", "middle")
+    .text(data => `${data}0%`);
+
+  const axesLabel = container.selectAll(".axesLabel")
+    .data(axesData)
+    .enter()
+    .append("text")
+    .attr("class", "axesLabel")
+    .attr("x", data => data.label_coord.x)
+    .attr("y", data => data.label_coord.y)
     .attr("text-anchor", "middle")
-    .attr("x", (data, idx) => {
-      const r = radiusScale(data[1]);
-      const m = Math.sqrt(3) / 2;
-
-      switch (idx) {
-        case 1:
-          return m * r - 10;
-        case 2:
-          return m * r + 10;
-        case 4:
-          return -m * r - 5;
-        case 5:
-          return -m * r - 40;
-        default:
-          return 0;
-      };
+    .attr("transform", (data, idx) => {
+      if (idx === 1 || idx === 4) {
+        return `rotate(${-60}, ${data.label_coord.x}, ${data.label_coord.y})`;
+      } else if (idx === 2 || idx === 5) {
+        return `rotate(${60}, ${data.label_coord.x}, ${data.label_coord.y})`;
+      }
     })
-    .attr("y", (data, idx) => {
-      const r = radiusScale(data[1]);
-
-      switch (idx) {
-        case 1:
-          return r / 2 - 10;
-        case 2:
-          return -r / 2 - 10;
-        case 3:
-          return -r
-        case 4:
-          return -r / 2 - 5;
-        case 5:
-          return r / 2 + 40;
-        default:
-          return r + 10;
-      };
-    })
-    .text((data, idx) => SOCIOECONOMIC_FACTORS[idx]);
+    .text(data => data.name);
 
 }
 
@@ -393,7 +414,7 @@ function generateTask5_4() {
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8])
     .range(d3.schemeTableau10);
 
-  const container = d3.select("#main")
+  const container = d3.select("#bar")
     .append("svg")
     .attr("class", "graph_3_container")
     .attr("width", SVG_WIDTH)
