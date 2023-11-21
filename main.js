@@ -6,7 +6,13 @@ var barToolTip = d3.tip()
     return "<h5 class='barValue'>" + d + " %</h5>";
   });
 
-
+var radarToolTip = d3.tip()
+  .attr("class", "d3-tip")
+  .offset([15, 10])
+  .html(function (d) {
+    // console.log(d);
+    return "<h5 class='radarValue'>" + d.info + "</h5>";
+  });
 
 // Utility functions
 function convertStringToBoolean(val) {
@@ -146,7 +152,7 @@ d3.csv('data.csv', dataProcessor).then((data) => {
   console.log(maxMentalIllnessAndEmployedCount, maxMentalIllnessAndUnemployedCount, maxMentalIllnessCount, maxUnemploymentCount);
 
   generateTask4_8();
-  // generateTask5_4();
+  generateTask5_4();
 });
 
 function generateTask4_8() {
@@ -212,17 +218,17 @@ function generateTask4_8() {
   });
 
   const graphData = {};
-  // Out of X people under the category, Y are mentally ill
-  SOCIOECONOMIC_FACTORS.forEach(category => {
-    const mentalIllnessCount = d3.sum(filteredData, (data => data[category]));
-    const totalCount = d3.sum(totalData, (data => data[category]))
-    graphData[category] = getPercentage(mentalIllnessCount, totalCount);
-  });
-  // // Out of X mentally ill people Y are in this category
+  // // Out of X people under the category, Y are mentally ill
   // SOCIOECONOMIC_FACTORS.forEach(category => {
   //   const mentalIllnessCount = d3.sum(filteredData, (data => data[category]));
-  //   graphData[category] = getPercentage(mentalIllnessCount, maxMentalIllnessCount);
+  //   const totalCount = d3.sum(totalData, (data => data[category]))
+  //   graphData[category] = getPercentage(mentalIllnessCount, totalCount);
   // });
+  // Out of X mentally ill people Y are in this category
+  SOCIOECONOMIC_FACTORS.forEach(category => {
+    const mentalIllnessCount = d3.sum(filteredData, (data => data[category]));
+    graphData[category] = getPercentage(mentalIllnessCount, maxMentalIllnessCount);
+  });
 
   console.log(graphData);
 
@@ -273,6 +279,8 @@ function generateTask4_8() {
     .attr("height", SVG_HEIGHT)
     .style("margin", MARGIN.t);
 
+  container.call(radarToolTip);
+
   const backgroundCircles = container.selectAll("circle")
     .data(ticks)
     .enter()
@@ -291,7 +299,21 @@ function generateTask4_8() {
     .attr("stroke", "red")
     .attr("fill", "lightsalmon")
     .attr("stroke-opacity", 1)
-    .attr("opacity", 0.75);
+    .attr("opacity", 0.75)
+    .on('mouseover', function (data, idx) {
+      const currentCategory = SOCIOECONOMIC_FACTORS[idx];
+      const categoryData = socioeconomicFactorsLabelMap[currentCategory];
+      radarToolTip.show(categoryData);
+      const hoveredElement = d3.select(this);
+
+      hoveredElement.classed('barHover', true);
+    })
+    .on('mouseout', function (data) {
+      radarToolTip.hide();
+      const hoveredElement = d3.select(this);
+      hoveredElement.classed('barHover', false)
+        .select('text.barValue').remove();
+    });
 
   // Axes
   const axesData = Object.keys(graphData).map((category, idx) => {
@@ -421,7 +443,7 @@ function generateTask5_4() {
     .attr("height", SVG_HEIGHT)
     .style("margin", MARGIN.t);
 
-  container.call((barToolTip));
+  container.call(barToolTip);
 
   const graph = container.selectAll(".graph_3")
     .data(nestedData)
@@ -456,15 +478,9 @@ function generateTask5_4() {
       const hoveredElement = d3.select(this);
 
       hoveredElement.classed('barHover', true);
-
-      hoveredElement.append('text')
-        .attr('class', 'barValue')
-        .attr('dx', '1em')
-        .attr('dy', '-2em')
-        .text(`${data} %`);
     })
     .on('mouseout', function (data) {
-      barToolTip.hide(data);
+      barToolTip.hide();
       const hoveredElement = d3.select(this);
       hoveredElement.classed('barHover', false)
         .select('text.barValue').remove();
