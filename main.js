@@ -1,11 +1,5 @@
 // Global Constants
-var lineToolTip = d3.tip()
-  .attr("class", "d3-tip")
-  .offset([0, -5])
-  .html((data) => {
-    console.log(data);
-    return `<h5>${data}</h5>`
-  });
+let currentView = 1;
 
 var barToolTip = d3.tip()
   .attr("class", "d3-tip")
@@ -16,10 +10,20 @@ var barToolTip = d3.tip()
 
 var radarToolTip = d3.tip()
   .attr("class", "d3-tip")
-  .offset([15, 10])
-  .html(function (d) {
-    // console.log(d);
-    return "<h5 class='radarValue'>" + d.info + "</h5>";
+  .offset([100, 0])
+  .html(function (data) {
+    const { info, label, value } = data;
+
+    return `
+    <div class="radarTooltip-container">
+      <div class="radarTooltip-left">
+        <h4>${label}</h4>
+        <p>${info}</p>
+      </div>
+      <div class="radarTooltip-divider"></div>
+      <p class="radarTooltip-value">${value} %</p>
+    </div>
+    `
   });
 
 // Utility functions
@@ -186,85 +190,99 @@ d3.csv('data.csv', dataProcessor).then((data) => {
 
   console.log(maxMentalIllnessAndEmployedCount, maxMentalIllnessAndUnemployedCount, maxMentalIllnessCount, maxUnemploymentCount);
 
-  generateRadarPlot();
+  // generateRadarPlot();
   generateBarPlot();
 });
 
-d3.csv('unemploymentRate.csv', unemploymentRatePreprocessor).then((data) => {
-  unemplymentData = data;
+// d3.csv('unemploymentRate.csv', unemploymentRatePreprocessor).then((data) => {
+//   unemplymentData = data;
 
-  console.log(unemplymentData[0], unemplymentData[1]);
+//   console.log(unemplymentData[0], unemplymentData[1]);
 
-  // Graph constants
-  const SVG_WIDTH = 700;
-  const SVG_HEIGHT = 600;
-  const padding = 50;
+//   // Graph constants
+//   const SVG_WIDTH = 700;
+//   const SVG_HEIGHT = 600;
+//   const padding = 50;
+//   const totalUnemploymentData = unemplymentData.length;
+//   const finalValue = unemplymentData[totalUnemploymentData - 1];
 
-  // Preparing Scales
-  const rateExtent = d3.extent(unemplymentData, (data) => data.rate);
-  const rateScale = d3.scaleLinear()
-    .domain(rateExtent)
-    .range([SVG_HEIGHT - padding, MARGIN.t]);
-  const timeExtent = d3.extent(unemplymentData, (data) => data.date);
-  const timeScale = d3.scaleTime()
-    .domain(timeExtent)
-    .range([padding, SVG_WIDTH - MARGIN.t]);
+//   // Preparing Scales
+//   const rateExtent = d3.extent(unemplymentData, (data) => data.rate);
+//   const rateScale = d3.scaleLinear()
+//     .domain(rateExtent)
+//     .range([SVG_HEIGHT - padding, MARGIN.t]);
+//   const timeExtent = d3.extent(unemplymentData, (data) => data.date);
+//   const timeScale = d3.scaleTime()
+//     .domain(timeExtent)
+//     .range([padding, SVG_WIDTH - MARGIN.t]);
 
-  const timeFormat = d3.timeFormat("%b %Y");
-  // Axes
-  const xAxis = d3.axisBottom(timeScale)
-    .tickFormat(timeFormat)
-    .ticks(8);
-  const yAxis = d3.axisLeft(rateScale);
+//   const timeFormat = d3.timeFormat("%b %Y");
+//   // Axes
+//   const xAxis = d3.axisBottom(timeScale)
+//     .tickFormat(timeFormat)
+//     .ticks(8);
+//   const yAxis = d3.axisLeft(rateScale);
 
 
-  // Draw graph
-  const container = d3.select("#line")
-    .append("svg")
-    .attr("width", SVG_WIDTH)
-    .attr("height", SVG_HEIGHT)
-    .attr("class", "graph_1_container")
-    .style("border", "2px solid black")
-    .style("margin", MARGIN.t);
+//   // Draw graph
+//   const container = d3.select("#line")
+//     .append("svg")
+//     .attr("width", SVG_WIDTH)
+//     .attr("height", SVG_HEIGHT)
+//     .attr("class", "graph_1_container")
+//     .style("border", "2px solid black")
+//     .style("margin", MARGIN.t);
 
-  container.call(lineToolTip);
+//   d3.selectAll(".graph_1_container")
+//     .append("g")
+//     .attr("class", "xlineAxis")
+//     .attr("transform", `translate(${0},${SVG_HEIGHT - padding})`)
+//     .call(xAxis);
+//   d3.selectAll(".graph_1_container")
+//     .append("g")
+//     .attr("class", "ylineAxis")
+//     .attr("transform", `translate(${padding}, ${0})`)
+//     .call(yAxis);
 
-  d3.selectAll(".graph_1_container")
-    .append("g")
-    .attr("class", "xlineAxis")
-    .attr("transform", `translate(${0},${SVG_HEIGHT - padding})`)
-    .call(xAxis);
-  d3.selectAll(".graph_1_container")
-    .append("g")
-    .attr("class", "ylineAxis")
-    .attr("transform", `translate(${padding}, ${0})`)
-    .call(yAxis);
+//   container.append("path")
+//     .datum(unemplymentData)
+//     .attr("fill", "none")
+//     .attr("stroke", "skyblue")
+//     .attr("stroke-width", 1.5)
+//     .attr("opacity", 1)
+//     .attr("d", d3.line()
+//       .x((data) => timeScale(data.date))
+//       .y((data) => rateScale(data.rate)));
 
-  container.append("path")
-    .datum(unemplymentData)
-    .attr("fill", "none")
-    .attr("stroke", "dodgerblue")
-    .attr("stroke-width", 1.5)
-    .attr("stroke-opacity", 0.75)
-    .attr("d", d3.line()
-      .x((data) => timeScale(data.date))
-      .y((data) => rateScale(data.rate)));
+//   const circles = container.append("circle")
+//     .attr("fill", "royalblue")
+//     .attr("stroke", "black")
+//     .attr("stroke-width", "0.8")
+//     .attr("cx", timeScale(finalValue.date))
+//     .attr("cy", rateScale(finalValue.rate))
+//     .attr("r", 3);
 
-  container.selectAll("circle")
-    .data(unemplymentData)
-    .enter()
-    .append("circle")
-    .attr("fill", "salmon")
-    .attr("cx", function (data) { return timeScale(data.date) })
-    .attr("cy", function (data) { return rateScale(data.rate) })
-    .attr("r", (data) => {
-      if (data.time > new Date(2023, 1)) {
-        return 5;
-      }
-      return 0.1;
-    })
+//   container.append("text")
+//     .attr("x", timeScale(finalValue.date))
+//     .attr("y", rateScale(finalValue.rate) - MARGIN.t)
+//     .attr("text-anchor", "end")
+//     .style("font-weight", "bold")
+//     .text(`Current Unemployment Rate: ${finalValue.rate}%`);
 
-})
+//   // Labels
+//   container.append('text')
+//     .attr('class', 'label')
+//     .attr('transform', `translate(${(SVG_WIDTH / 2)},${SVG_HEIGHT - (padding / 2) + MARGIN.t})`)
+//     .style("font-weight", "bold")
+//     .text('Year');
+
+//   container.append('text')
+//     .attr('class', 'label')
+//     .attr("text-anchor", "middle")
+//     .attr('transform', `translate(${padding / 2},${(SVG_HEIGHT / 2) - padding}) rotate(270)`)
+//     .style("font-weight", "bold")
+//     .text('Unemployment Rates (%)');
+// });
 
 function generateRadarPlot() {
   // Task 4-8 Radar plot depicting various socioeconomic factors and
@@ -390,8 +408,6 @@ function generateRadarPlot() {
     .attr("height", SVG_HEIGHT)
     .style("margin", MARGIN.t);
 
-  container.call(radarToolTip);
-
   const backgroundCircles = container.selectAll("circle")
     .data(ticks)
     .enter()
@@ -409,22 +425,7 @@ function generateRadarPlot() {
     .attr("stroke-width", 3)
     .attr("stroke", "red")
     .attr("fill", "lightsalmon")
-    .attr("stroke-opacity", 1)
-    .attr("opacity", 0.75)
-    .on('mouseover', function (data, idx) {
-      const currentCategory = SOCIOECONOMIC_FACTORS[idx];
-      const categoryData = socioeconomicFactorsLabelMap[currentCategory];
-      radarToolTip.show(categoryData);
-      const hoveredElement = d3.select(this);
-
-      hoveredElement.classed('barHover', true);
-    })
-    .on('mouseout', function (data) {
-      radarToolTip.hide();
-      const hoveredElement = d3.select(this);
-      hoveredElement.classed('barHover', false)
-        .select('text.barValue').remove();
-    });
+    .attr("opacity", 0.75);
 
   // Axes
   const axesData = Object.keys(graphData).map((category, idx) => {
@@ -433,11 +434,12 @@ function generateRadarPlot() {
       name: socioeconomicFactorsLabelMap[category].label,
       angle,
       line_coord: angleToCoordinate(angle, 10),
-      label_coord: angleToCoordinate(angle, 10.5)
+      label_coord: angleToCoordinate(angle, 10.5),
+      value: graphData[category]
     };
   });
 
-  container.selectAll("line")
+  const axisLines = container.selectAll("line")
     .data(axesData)
     .enter()
     .append("line")
@@ -445,7 +447,28 @@ function generateRadarPlot() {
     .attr("y1", SVG_HEIGHT / 2)
     .attr("x2", data => data.line_coord.x)
     .attr("y2", data => data.line_coord.y)
-    .attr("stroke", "black");
+    .attr("stroke", "black")
+    // .attr("stroke-width", 1)
+    .on('mouseover', function (data, idx) {
+      const currentCategory = SOCIOECONOMIC_FACTORS[idx];
+      const categoryData = socioeconomicFactorsLabelMap[currentCategory];
+      radarToolTip.show({
+        label: categoryData.label,
+        info: categoryData.info,
+        value: data.value
+      });
+      const hoveredElement = d3.select(this);
+
+      hoveredElement.classed('radarHover', true);
+    })
+    .on('mouseout', function (data) {
+      radarToolTip.hide();
+      const hoveredElement = d3.select(this);
+      hoveredElement.classed('radarHover', false)
+        .select('text.radarHover').remove();
+    });
+
+  axisLines.call(radarToolTip);
 
   // Labels
   const backgroundCircleLabels = container.selectAll(".bgCircleLabel")
@@ -455,7 +478,6 @@ function generateRadarPlot() {
     .attr("class", "bgCircleLabel")
     .attr("x", SVG_WIDTH / 2 + 5)
     .attr("y", data => (SVG_HEIGHT / 2) - radialScale(data) + padding)
-    // .attr("text-anchor", "middle")
     .text(data => `${data}0%`);
 
   const axesLabel = container.selectAll(".axesLabel")
@@ -632,5 +654,64 @@ function generateBarPlot() {
     .attr("text-anchor", "middle")
     .attr('transform', `translate(${10},${SVG_HEIGHT / 2 - padding}) rotate(270)`)
     .text('Various Mental Illness');
+
+  // Event Handling
+  d3.select("#barSlider-prev")
+    .on("click", () => {
+      // Go to previous state only for existing views
+      currentView--;
+
+      if (currentView >= 1) {
+        let range = [(currentView - 1) * 9, (currentView * 9) - 1]
+        d3.selectAll(".bar")
+          .classed("focus", (data, idx) => {
+            if (idx >= range[0] && idx <= range[1]) {
+              return true;
+            }
+
+            return false;
+          })
+          .classed("unfocus", (data, idx) => {
+            if (idx < range[0] || idx > range[1]) {
+              return true;
+            }
+
+            return false;
+          });
+      } else {
+        currentView++;
+      }
+    });
+
+  d3.select("#barSlider-next")
+    .on("click", () => {
+      // Go to next state only for existing views
+      currentView++;
+      if (currentView <= 4) {
+        let range = [(currentView - 1) * 9, (currentView * 9) - 1]
+        d3.selectAll(".bar")
+          .classed("focus", (data, idx) => {
+            if (idx >= range[0] && idx <= range[1]) {
+              return true;
+            }
+
+            return false;
+          })
+          .classed("unfocus", (data, idx) => {
+            if (idx < range[0] || idx > range[1]) {
+              return true;
+            }
+
+            return false;
+          });
+      }
+      else if (currentView === 5) {
+        d3.selectAll(".bar")
+          .classed("focus", true)
+          .classed("unfocus", false);
+      } else {
+        currentView--;
+      }
+    });
 
 }
