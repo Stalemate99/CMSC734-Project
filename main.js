@@ -190,99 +190,97 @@ d3.csv('data.csv', dataProcessor).then((data) => {
 
   console.log(maxMentalIllnessAndEmployedCount, maxMentalIllnessAndUnemployedCount, maxMentalIllnessCount, maxUnemploymentCount);
 
-  // generateRadarPlot();
+  generateRadarPlot();
   generateBarPlot();
 });
 
-// d3.csv('unemploymentRate.csv', unemploymentRatePreprocessor).then((data) => {
-//   unemplymentData = data;
+d3.csv('unemploymentRate.csv', unemploymentRatePreprocessor).then((data) => {
+  unemplymentData = data;
 
-//   console.log(unemplymentData[0], unemplymentData[1]);
+  // Graph constants
+  const SVG_WIDTH = 700;
+  const SVG_HEIGHT = 600;
+  const padding = 50;
+  const totalUnemploymentData = unemplymentData.length;
+  const finalValue = unemplymentData[totalUnemploymentData - 1];
 
-//   // Graph constants
-//   const SVG_WIDTH = 700;
-//   const SVG_HEIGHT = 600;
-//   const padding = 50;
-//   const totalUnemploymentData = unemplymentData.length;
-//   const finalValue = unemplymentData[totalUnemploymentData - 1];
+  // Preparing Scales
+  const rateExtent = d3.extent(unemplymentData, (data) => data.rate);
+  const rateScale = d3.scaleLinear()
+    .domain(rateExtent)
+    .range([SVG_HEIGHT - padding, MARGIN.t]);
+  const timeExtent = d3.extent(unemplymentData, (data) => data.date);
+  const timeScale = d3.scaleTime()
+    .domain(timeExtent)
+    .range([padding, SVG_WIDTH - MARGIN.t]);
 
-//   // Preparing Scales
-//   const rateExtent = d3.extent(unemplymentData, (data) => data.rate);
-//   const rateScale = d3.scaleLinear()
-//     .domain(rateExtent)
-//     .range([SVG_HEIGHT - padding, MARGIN.t]);
-//   const timeExtent = d3.extent(unemplymentData, (data) => data.date);
-//   const timeScale = d3.scaleTime()
-//     .domain(timeExtent)
-//     .range([padding, SVG_WIDTH - MARGIN.t]);
-
-//   const timeFormat = d3.timeFormat("%b %Y");
-//   // Axes
-//   const xAxis = d3.axisBottom(timeScale)
-//     .tickFormat(timeFormat)
-//     .ticks(8);
-//   const yAxis = d3.axisLeft(rateScale);
+  const timeFormat = d3.timeFormat("%b %Y");
+  // Axes
+  const xAxis = d3.axisBottom(timeScale)
+    .tickFormat(timeFormat)
+    .ticks(8);
+  const yAxis = d3.axisLeft(rateScale);
 
 
-//   // Draw graph
-//   const container = d3.select("#line")
-//     .append("svg")
-//     .attr("width", SVG_WIDTH)
-//     .attr("height", SVG_HEIGHT)
-//     .attr("class", "graph_1_container")
-//     .style("border", "2px solid black")
-//     .style("margin", MARGIN.t);
+  // Draw graph
+  const container = d3.select("#line")
+    .append("svg")
+    .attr("width", SVG_WIDTH)
+    .attr("height", SVG_HEIGHT)
+    .attr("class", "graph_1_container")
+    .style("border", "2px solid black")
+    .style("margin", MARGIN.t);
 
-//   d3.selectAll(".graph_1_container")
-//     .append("g")
-//     .attr("class", "xlineAxis")
-//     .attr("transform", `translate(${0},${SVG_HEIGHT - padding})`)
-//     .call(xAxis);
-//   d3.selectAll(".graph_1_container")
-//     .append("g")
-//     .attr("class", "ylineAxis")
-//     .attr("transform", `translate(${padding}, ${0})`)
-//     .call(yAxis);
+  d3.selectAll(".graph_1_container")
+    .append("g")
+    .attr("class", "xlineAxis")
+    .attr("transform", `translate(${0},${SVG_HEIGHT - padding})`)
+    .call(xAxis);
+  d3.selectAll(".graph_1_container")
+    .append("g")
+    .attr("class", "ylineAxis")
+    .attr("transform", `translate(${padding}, ${0})`)
+    .call(yAxis);
 
-//   container.append("path")
-//     .datum(unemplymentData)
-//     .attr("fill", "none")
-//     .attr("stroke", "skyblue")
-//     .attr("stroke-width", 1.5)
-//     .attr("opacity", 1)
-//     .attr("d", d3.line()
-//       .x((data) => timeScale(data.date))
-//       .y((data) => rateScale(data.rate)));
+  container.append("path")
+    .datum(unemplymentData)
+    .attr("fill", "none")
+    .attr("stroke", "skyblue")
+    .attr("stroke-width", 1.5)
+    .attr("opacity", 1)
+    .attr("d", d3.line()
+      .x((data) => timeScale(data.date))
+      .y((data) => rateScale(data.rate)));
 
-//   const circles = container.append("circle")
-//     .attr("fill", "royalblue")
-//     .attr("stroke", "black")
-//     .attr("stroke-width", "0.8")
-//     .attr("cx", timeScale(finalValue.date))
-//     .attr("cy", rateScale(finalValue.rate))
-//     .attr("r", 3);
+  const circles = container.append("circle")
+    .attr("fill", "royalblue")
+    .attr("stroke", "black")
+    .attr("stroke-width", "0.8")
+    .attr("cx", timeScale(finalValue.date))
+    .attr("cy", rateScale(finalValue.rate))
+    .attr("r", 3);
 
-//   container.append("text")
-//     .attr("x", timeScale(finalValue.date))
-//     .attr("y", rateScale(finalValue.rate) - MARGIN.t)
-//     .attr("text-anchor", "end")
-//     .style("font-weight", "bold")
-//     .text(`Current Unemployment Rate: ${finalValue.rate}%`);
+  container.append("text")
+    .attr("x", timeScale(finalValue.date))
+    .attr("y", rateScale(finalValue.rate) - MARGIN.t)
+    .attr("text-anchor", "end")
+    .style("font-weight", "bold")
+    .text(`Current Unemployment Rate: ${finalValue.rate}%`);
 
-//   // Labels
-//   container.append('text')
-//     .attr('class', 'label')
-//     .attr('transform', `translate(${(SVG_WIDTH / 2)},${SVG_HEIGHT - (padding / 2) + MARGIN.t})`)
-//     .style("font-weight", "bold")
-//     .text('Year');
+  // Labels
+  container.append('text')
+    .attr('class', 'label')
+    .attr('transform', `translate(${(SVG_WIDTH / 2)},${SVG_HEIGHT - (padding / 2) + MARGIN.t})`)
+    .style("font-weight", "bold")
+    .text('Year');
 
-//   container.append('text')
-//     .attr('class', 'label')
-//     .attr("text-anchor", "middle")
-//     .attr('transform', `translate(${padding / 2},${(SVG_HEIGHT / 2) - padding}) rotate(270)`)
-//     .style("font-weight", "bold")
-//     .text('Unemployment Rates (%)');
-// });
+  container.append('text')
+    .attr('class', 'label')
+    .attr("text-anchor", "middle")
+    .attr('transform', `translate(${padding / 2},${(SVG_HEIGHT / 2) - padding}) rotate(270)`)
+    .style("font-weight", "bold")
+    .text('Unemployment Rates (%)');
+});
 
 function generateRadarPlot() {
   // Task 4-8 Radar plot depicting various socioeconomic factors and
