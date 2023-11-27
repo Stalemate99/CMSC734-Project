@@ -186,8 +186,8 @@ d3.csv('data.csv', dataProcessor).then((data) => {
 
   console.log(maxMentalIllnessAndEmployedCount, maxMentalIllnessAndUnemployedCount, maxMentalIllnessCount, maxUnemploymentCount);
 
-  generateTask4_8();
-  generateTask5_4();
+  generateRadarPlot();
+  generateBarPlot();
 });
 
 d3.csv('unemploymentRate.csv', unemploymentRatePreprocessor).then((data) => {
@@ -266,7 +266,7 @@ d3.csv('unemploymentRate.csv', unemploymentRatePreprocessor).then((data) => {
 
 })
 
-function generateTask4_8() {
+function generateRadarPlot() {
   // Task 4-8 Radar plot depicting various socioeconomic factors and
   // MH illness percentages in each category.
 
@@ -477,7 +477,7 @@ function generateTask4_8() {
 
 }
 
-function generateTask5_4() {
+function generateBarPlot() {
   // Task 5-4 - Bar Chart for Various Mental Illness vs Age groups for Unemployed Folks
 
   // Data Pracessing
