@@ -1,4 +1,12 @@
 // Global Constants
+var lineToolTip = d3.tip()
+  .attr("class", "d3-tip")
+  .offset([0, -5])
+  .html((data) => {
+    console.log(data);
+    return `<h5>${data}</h5>`
+  });
+
 var barToolTip = d3.tip()
   .attr("class", "d3-tip")
   .offset([15, 10])
@@ -23,6 +31,26 @@ function convertStringToBoolean(val) {
 
 function getPercentage(part, total) {
   return +((part / total) * 100).toFixed(2);
+}
+
+function getDatefromMonthYear(value) {
+  const [month, year] = value.split('-');
+  const MONTH_TO_NUMBER = {
+    'Jan': 1,
+    'Feb': 2,
+    'Mar': 3,
+    'Apr': 4,
+    'May': 5,
+    'Jun': 6,
+    'Jul': 7,
+    'Aug': 8,
+    'Sep': 9,
+    'Oct': 10,
+    'Nov': 11,
+    'Dec': 12
+  }
+
+  return new Date(+(`20${year}`), MONTH_TO_NUMBER[month], 1);
 }
 
 const HEADER_TO_KEY_HASH = {
@@ -117,6 +145,13 @@ function dataProcessor(data) {
   return cleanedData;
 }
 
+function unemploymentRatePreprocessor(data) {
+  return {
+    date: getDatefromMonthYear(data["Month"]),
+    rate: +data["Unemployment Rate"]
+  };
+}
+
 const MARGIN = {
   l: 10,
   r: 10,
@@ -154,6 +189,82 @@ d3.csv('data.csv', dataProcessor).then((data) => {
   generateTask4_8();
   generateTask5_4();
 });
+
+d3.csv('unemploymentRate.csv', unemploymentRatePreprocessor).then((data) => {
+  unemplymentData = data;
+
+  console.log(unemplymentData[0], unemplymentData[1]);
+
+  // Graph constants
+  const SVG_WIDTH = 700;
+  const SVG_HEIGHT = 600;
+  const padding = 50;
+
+  // Preparing Scales
+  const rateExtent = d3.extent(unemplymentData, (data) => data.rate);
+  const rateScale = d3.scaleLinear()
+    .domain(rateExtent)
+    .range([SVG_HEIGHT - padding, MARGIN.t]);
+  const timeExtent = d3.extent(unemplymentData, (data) => data.date);
+  const timeScale = d3.scaleTime()
+    .domain(timeExtent)
+    .range([padding, SVG_WIDTH - MARGIN.t]);
+
+  const timeFormat = d3.timeFormat("%b %Y");
+  // Axes
+  const xAxis = d3.axisBottom(timeScale)
+    .tickFormat(timeFormat)
+    .ticks(8);
+  const yAxis = d3.axisLeft(rateScale);
+
+
+  // Draw graph
+  const container = d3.select("#line")
+    .append("svg")
+    .attr("width", SVG_WIDTH)
+    .attr("height", SVG_HEIGHT)
+    .attr("class", "graph_1_container")
+    .style("border", "2px solid black")
+    .style("margin", MARGIN.t);
+
+  container.call(lineToolTip);
+
+  d3.selectAll(".graph_1_container")
+    .append("g")
+    .attr("class", "xlineAxis")
+    .attr("transform", `translate(${0},${SVG_HEIGHT - padding})`)
+    .call(xAxis);
+  d3.selectAll(".graph_1_container")
+    .append("g")
+    .attr("class", "ylineAxis")
+    .attr("transform", `translate(${padding}, ${0})`)
+    .call(yAxis);
+
+  container.append("path")
+    .datum(unemplymentData)
+    .attr("fill", "none")
+    .attr("stroke", "dodgerblue")
+    .attr("stroke-width", 1.5)
+    .attr("stroke-opacity", 0.75)
+    .attr("d", d3.line()
+      .x((data) => timeScale(data.date))
+      .y((data) => rateScale(data.rate)));
+
+  container.selectAll("circle")
+    .data(unemplymentData)
+    .enter()
+    .append("circle")
+    .attr("fill", "salmon")
+    .attr("cx", function (data) { return timeScale(data.date) })
+    .attr("cy", function (data) { return rateScale(data.rate) })
+    .attr("r", (data) => {
+      if (data.time > new Date(2023, 1)) {
+        return 5;
+      }
+      return 0.1;
+    })
+
+})
 
 function generateTask4_8() {
   // Task 4-8 Radar plot depicting various socioeconomic factors and
@@ -218,7 +329,7 @@ function generateTask4_8() {
   });
 
   const graphData = {};
-  // // Out of X people under the category, Y are mentally ill
+  // Out of X people under the category, Y are mentally ill
   // SOCIOECONOMIC_FACTORS.forEach(category => {
   //   const mentalIllnessCount = d3.sum(filteredData, (data => data[category]));
   //   const totalCount = d3.sum(totalData, (data => data[category]))
