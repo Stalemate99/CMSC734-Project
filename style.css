@@ -26,6 +26,39 @@ header {
   height: 2rem;
 }
 
+.anxiety {
+  background-color: #4e79a7;
+}
+.compulsive_behavior {
+  background-color: #f28e2b;
+}
+.depression {
+  background-color: #e15759;
+}
+.lack_of_concentration {
+  background-color: #76b7b2;
+}
+.legally_disabled {
+  background-color: #59a14f;
+}
+.mood_swings {
+  background-color: #edc948;
+}
+.obsessive_thinking {
+  background-color: #b07aa1;
+}
+.panic_attacks {
+  background-color: #ff9da7;
+}
+.tiredness {
+  background-color: #9c755f;
+}
+
+.square {
+  width: 4rem;
+  height: 4rem;
+}
+
 /* Graph Styles */
 .graph_3 .line {
   stroke: black;
