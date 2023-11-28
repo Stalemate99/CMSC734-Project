@@ -44,4 +44,4 @@ python -m http.server 8080  (or python3 -m http.server 8080)
 
 #### Hosted site
 
-(Socioeconomic Factors vs Mental Health Project)[https://verdant-crostata-294e90.netlify.app/]
+(Socioeconomic Factors vs Mental Health Project)[https://mind-narrative.netlify.app/]
