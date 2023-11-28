@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Project Examples</title>
+    <title>Socioeconomic Factors vs Mental Health</title>
     <link rel="stylesheet" href="./style.css" />
     <link
       rel="stylesheet"
@@ -13,24 +13,261 @@
   </head>
   <body>
     <div id="main">
-      <div id="line"></div>
-      <div id="radar"></div>
-      <div id="bar"></div>
-      <button type="button" class="btn btn-info" id="barSlider-prev">
-        Previous
-      </button>
-      <button type="button" class="btn btn-info" id="barSlider-next">
-        Next
-      </button>
-      <div id="decisionTreeContainer">
-        <button type="button" class="btn btn-info" id="expand-full">
-          Expand Tree Fully
-        </button>
-        <button type="button" class="btn btn-info" id="collapse-full">
-          Collapse Tree Fully
-        </button>
-        <div id="decisionTree"></div>
-      </div>
+      <header>
+        <h1 class="display-3 text-center">
+          Socioeconomic Factors and Their Correlation with Mental Health: A
+          Comprehensive Analysis
+        </h1>
+      </header>
+      <main class="container">
+        <section class="d-flex flex-column justify-content-center">
+          <img src="https://iveronicawalsh.files.wordpress.com/2012/09/unemployedjob9.png" class="img-thumbnail border-dark m-5" alt="Mental Health Article Hero Image"/>
+          <p class="lead">
+            Despite being a persistent challenge throughout history, the current era presents a particularly alarming scenario with unprecedented levels of unemployment. Economic shifts accelerated technological advancements, and the profound impacts of global events have caused fluctuations in unemployment rates. Additionally, the global economic landscape has been marred by disruptions, such as the financial crisis and the COVID-19 pandemic, amplifying unemployment woes. These circumstances underscore the urgency for comprehensive strategies that address not only the immediate concerns of those currently unemployed but also the systemic issues contributing to this unparalleled surge in job insecurity.
+          </p>
+          <blockquote class="blockquote">
+            <p>
+              Both low-quality work and unemployment have a negative influence on mental health. This lengthy read focuses primarily on mental health and unemployment.
+            </p>
+          </blockquote>
+        </section>
+        <section class="d-flex flex-column justify-content-center">
+          <p>
+            The graph below depicts the unemployment trend in the US (Source: US Department of Bureau of Labor Statistics). As seen in the graph, it can be observed that there are two spikes where unemployment rates were higher than in other periods. One of the spikes occurred during the great recession that happened in the late 2000s and the other corresponds to the period of the recent global pandemic.
+          </p>
+          <figure class="d-flex flex-column">
+            <div class="d-flex justify-content-center mb-2" id="line"></div>
+            <figcaption class="figure-caption align-self-center">
+              Data source - <a href="https://data.bls.gov/map/MapToolServlet" target="_blank">BLS Government Data</a>
+            </figcaption>
+          </figure>
+          <p>
+            <strong>
+              Although the unemployment rates have dropped since the global pandemic, unprecedented historical events show that we cannot expect the unemployment rates to drop continuously.
+            </strong>
+            These sudden surges in unemployment could have adverse impacts on one's mental health. Therefore, it's important to analyze how severely unemployment could affect the mental well-being of people.
+          </p>
+          <p>
+            It has been repeatedly demonstrated that unemployment, defined as not having a job but seeking one, negatively affects a range of health outcomes. There are various ways that unemployment might be detrimental to one's health.
+          </p>
+        </section>
+        <div class="d-flex justify-content-center my-4">
+          <div class="divider"></div>
+        </div>
+        <section class="mt-4">
+          <p>
+            The social security system itself can have a detrimental effect on mental health
+            <ul>
+              <li>
+                Through the claims process, work capability testing, and job search conditions.
+              </li>
+              <li>
+                Through stress and reduced self-esteem resulting from the loss of the routine of work or the stigma associated with unemployment as a result of financial hardship, insecurity, and reduced future earnings potential.
+              </li>
+            </ul>
+          </p>
+          <p>
+            Long-term unemployment has been demonstrated to have negative effects on both physical and mental health as well as life satisfaction. Extended periods of lower income, job loss, or unemployment have resulted from pandemic limitations; the long duration of these situations is especially concerning.
+          </p>
+          <p>
+            The long-term damage that unemployment can do to one's future earning potential is one of the reasons why policymakers are interested in unemployment, especially when it affects young people. Research, however, also indicates that young unemployment—as well as several spells of unemployment during the life course—may have long-term detrimental impacts on mental health.
+          </p>
+          <p>
+            We have structured our article as follows.
+            <strong>
+              First, we will try to identify the effect of income level and education on unemployment and mental health. Then, we will move our focus to analyze one's status of education and identify how it drives one's mental well-being and employment status. Afterward, we attempt to understand the impact of unemployment on mental health across different age groups.  Finally, we will delve into other socioeconomic factors that may directly/indirectly affect the mental well-being of an individual.
+            </strong>
+          </p>
+        </section>
+        <div class="d-flex justify-content-center my-4">
+          <div class="divider"></div>
+        </div>
+        <section class="my-lg-5">
+          <h2>
+            Understanding the impact of income level and education on unemployment and mental health
+          </h2>
+          <p>
+            <blockquote class="blockquote">
+              Two main socio-economic factors that play a crucial role in unemployment and mental health are the individual's income level and educational qualification.
+            </blockquote>
+             The below decision tree graph shows the contribution of each factor to one's unemployment status and mental health. In this graph, we first identified groups that fall under the category of having an income greater than the median US income of $25,000 and those that fall below that line. Then we analyzed their educational qualifications, employment status, and ultimately whether unemployment acts as a precursor to one's mental well-being.
+          </p>
+          <div id="decisionTreeContainer">
+            <button type="button" class="btn btn-info" id="expand-full">
+              Expand Tree Fully
+            </button>
+            <button type="button" class="btn btn-info" id="collapse-full">
+              Collapse Tree Fully
+            </button>
+            <figure class="d-flex flex-column align-items-center border border-dark my-lg-3">
+              <div id="decisionTree"></div>
+              <figcaption class="figure-caption">
+                Data source - <a href="https://www.kaggle.com/datasets/michaelacorley/unemployment-and-mental-illness-survey" target="_blank">Kaggle Mental Health Survey</a>
+              </figcaption>
+            </figure>
+            <ul>
+              <li>
+                We can see people who have an income above the mean, who have completed their undergraduate degree at least and are employed, are the least prone to being mentally ill.
+              </li>
+              <li>
+                Also, it shows that despite one may not complete their undergraduate degree, they are less likely to suffer mental illness if they are employed. This proves that employment status is a crucial factor for mental health.
+              </li>
+              <li>
+                Also, it shows that if one has an external source of income despite being unemployed or not completing the undergraduate degree, then they're still less likely to suffer from mental illness. This shows that the economic status of an individual acts as an alarming factor in general.
+              </li>
+            </ul>
+            <blockquote class="blockquote">
+              <p>
+                This tree graph confirms the point that it is very important to take measures to uplift one's economic situation in order to improve mental well-being overall.
+              </p>
+            </blockquote>
+          </div>
+        </section>
+        <div class="d-flex justify-content-center my-4">
+          <div class="divider"></div>
+        </div>
+        <section class="my-lg-5">
+          <h2>Understanding the impact of level of education on unemployment and mental health</h2>
+          <p>
+            In the interactive visualization below, we have identified 8 sub-categories describing levels of education in the cohort of people used in our dataset. Then, we identified the employment status, their range of income, and ultimately how these factors play a role in their mental wellbeing.
+          </p>
+          <div class="d-flex justify-content-center border border-dark py-3 my-xl-3">
+            <figure class="figure w-75">
+              <button type="button" id="zoom-out" class="btn btn-info">Zoom Out</button>
+              <div class="" id="treeMapContainer">
+                <svg class="treemap"></svg>
+                <svg class="temp"></svg>
+              </div>
+              <figcaption class="figure-caption text-center">
+                Data source - <a href="https://www.kaggle.com/datasets/michaelacorley/unemployment-and-mental-illness-survey" target="_blank">Kaggle Mental Health Survey</a>
+              </figcaption>
+            </figure>
+          </div>
+          <p>
+            Through careful inspection of the various aspects that contribute to mental well-being, it can be seen that those who have completed high school or a degree including and above the level of an undergraduate degree are less likely to suffer from a mental illness or be unemployed.
+            <strong>
+              Hence, we can conclude that the level of education someone has will have an impact on their mental well-being and employability.
+            </strong>
+          </p>
+          <table class="table table-bordered">
+            <caption class="text-center">Education Categories vs Unemployment Rates and Mental Illness Probability</caption>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Completed Highschool</th>
+                <th scope="col">Completed undergraduate</th>
+                <th scope="col">Completed masters</th>
+                <th scope="col">Completed Ph.D.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Percentage of Employed</th>
+                <td>60%</td>
+                <td>71%</td>
+                <td>69.38%</td>
+                <td>70%</td>
+              </tr>
+              <tr>
+                <th scope="row">Percentage of mentally unhealthy</th>
+                <td>20%</td>
+                <td>18%</td>
+                <td>17.4%</td>
+                <td>10%</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        <div class="d-flex justify-content-center my-4">
+          <div class="divider"></div>
+        </div>
+        <section>
+          <h2>
+            Understanding the impact of unemployment on mental health across different age groups
+          </h2>
+          <p>
+            <blockquote class="blockquote">
+              Here, we focus our attention on how individuals from various age groups are affected by unemployment and mental health.
+            </blockquote>
+            We have identified the unemployed individuals in each of these age groups and expanded the understanding of their mental well-being by analyzing the various mental illnesses these individuals suffer from. Our analysis is summarized in the graph below.
+          </p>
+          <figure class="d-flex flex-column border border-dark py-3 my-xl-3">
+            <div class="align-self-center" id="bar"></div>
+            <div class="d-flex justify-content-around">
+              <button type="button" class="btn btn-outline-info" id="barSlider-prev">
+                <img class="icon" src="./leftArrowIcon.svg" alt="leftArrowIcon" />
+              </button>
+              <button type="button" class="btn btn-outline-info" id="barSlider-next">
+                <img class="icon" src="./rightArrowIcon.svg" alt="rightArrowIcon" />
+              </button>
+            </div>
+            <figcaption class="figure-caption text-center">
+              Data source - <a href="https://www.kaggle.com/datasets/michaelacorley/unemployment-and-mental-illness-survey" target="_blank">Kaggle Mental Health Survey</a>
+            </figcaption>
+          </figure>
+          <p>
+            <strong>
+              From all the Age Categories '18-29' group has the highest probability of having a mental illness. And also, if the category 'above 60' is not considered, since they are senior citizens, the highest unemployment rate is also from this age category '18-29'. In contrast, the age category '45-60' has the highest rate of employment and lowest rate of having a mental illness.
+            </strong>
+          </p>
+          <p>
+            Also, we see that anxiety seems to be the most common disease among the majority of the age groups.
+          </p>
+          <p>
+            It is crucial for policy design to do such analysis and comprehend the mental health requirements of various age groups. It is important to have programs that assist people in finding work, but it is also important to make sure that those programs target at-risk groups for mental health care.
+          </p>
+        </section>
+        <div class="d-flex justify-content-center my-4">
+          <div class="divider"></div>
+        </div>
+        <section>
+          <h2>
+            Understanding the other socio-economic factors that may directly/indirectly affect the mental well-being of an individual
+          </h2>
+          <p>
+            We analyzed unemployment and education level along with 4 other socio-economic factors to compare and contrast the impact of each factor on one's mental well-being. The graph below shows the percentage of individuals who have a mental illness falling under the considered socio-economic factor.
+          </p>
+          <figure class="d-flex flex-column border border-dark py-3 my-xl-3">
+            <div class="text-center" id="radar"></div>
+            <figcaption class="figure-caption text-center">
+              Data source - <a href="https://www.kaggle.com/datasets/michaelacorley/unemployment-and-mental-illness-survey" target="_blank">Kaggle Mental Health Survey</a>
+            </figcaption>
+          </figure>
+          <p>
+            <strong>
+              It shows that when people have access to food, and housing and are surrounded by the people whom they love, they are less likely to suffer from mental illnesses.
+            </strong>
+            This leads to the fact that if the government or the policymakers can take necessary actions to cater to people who are in need of basic necessities, that eventually would lead to improvement of mental health as a whole society.
+          </p>
+        </section>
+        <div class="d-flex justify-content-center my-4">
+          <div class="divider"></div>
+        </div>
+        <section>
+          <h2>
+            Conclusion
+          </h2>
+          <p>
+            Maintaining strong employment levels in the face of trend analysis that shows an increase in unemployment will be vital.
+            <strong>
+              A substantial percentage of those who are unemployed struggle with mental health issues like depression and anxiety.
+            </strong>
+            Getting these people back to work will be essential to increasing employment rates and fostering economic growth.
+          </p>
+          <p>
+            The government can provide assistance in several ways. First and foremost, it's critical that measures to remove the financial assistance provided during the pandemic are implemented in a way that doesn't worsen mental illness. Secondly, certain policy adjustments are necessary to assist individuals in finding quality employment subsequently. These could involve helping to provide flexible employment options and customizing employment support services for those with poor mental health.
+          </p>
+          <p>
+            At a deeper level, the government must give mental health far greater priority.
+            <strong>
+              One of the most valuable resources in the country is a healthy populace, and mental and physical well-being are essential components of our future success since they enhance people's well-being, productivity, and capacity to engage in society.
+            </strong>
+          </p>
+        </section>
+      </main>
+      <footer class="text-center border-top border-dark py-2 my-2 font-weight-bold">
+        Copyrights ©️ CMSC734 TEAM 7
+      </footer>
     </div>
   </body>
   <script src="https://d3js.org/d3.v5.min.js"></script>

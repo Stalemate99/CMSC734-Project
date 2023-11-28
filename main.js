@@ -1,5 +1,5 @@
 // Global Constants
-let currentView = 1;
+let currentView = 2;
 
 var barToolTip = d3
   .tip()
@@ -963,7 +963,7 @@ let treeData = {
 };
 function generateDecisionTree() {
   let margin = { top: 20, right: 90, bottom: 30, left: 90 },
-    width = 1204 - margin.left - margin.right,
+    width = 1040 - margin.left - margin.right,
     height = 968 - margin.top - margin.bottom;
 
   let svg = d3
@@ -1175,3 +1175,852 @@ function generateDecisionTree() {
   d3.select("#expand-full").on("click", expandAll);
   d3.select("#collapse-full").on("click", collapseAll);
 }
+
+
+// TreeMap Code
+let treeMapData = {
+  name: "Education Level",
+  children: [
+    {
+      name: "High School or GED",
+      children: [
+        {
+          name: "Unemployed",
+          children: [
+            {
+              name: "$25,000-$49,999",
+              children: [
+                { name: "Mentally Healthy", value: 4 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [{ name: "Mentally Healthy", value: 3 }],
+            },
+            {
+              name: "$0-$9,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 3 },
+                { name: "Mentally Healthy", value: 3 },
+              ],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Healthy", value: 3 },
+                { name: "Mentally Unhealthy", value: 2 },
+              ],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [
+                { name: "Mentally Healthy", value: 3 },
+                { name: "Mentally Unhealthy", value: 2 },
+              ],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "$0-$9,999",
+              children: [{ name: "Mentally Healthy", value: 3 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 2 },
+                { name: "Mentally Healthy", value: 5 },
+              ],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [
+                { name: "Mentally Healthy", value: 10 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [
+                { name: "Mentally Unhealthy", value: 1 },
+                { name: "Mentally Healthy", value: 6 },
+              ],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [
+                { name: "Mentally Healthy", value: 5 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$150,000-$174,999",
+              children: [{ name: "Mentally Healthy", value: 3 }],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Some Phd",
+      children: [
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "$50,000-$74,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$100,000-$124,999",
+              children: [{ name: "Mentally Healthy", value: 4 }],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Completed Undergraduate",
+      children: [
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "$150,000-$174,999",
+              children: [{ name: "Mentally Healthy", value: 4 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 6 },
+                { name: "Mentally Healthy", value: 11 },
+              ],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Healthy", value: 13 },
+                { name: "Mentally Unhealthy", value: 2 },
+              ],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [
+                { name: "Mentally Unhealthy", value: 1 },
+                { name: "Mentally Healthy", value: 4 },
+              ],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 7 }],
+            },
+            {
+              name: "$200,000+",
+              children: [
+                { name: "Mentally Healthy", value: 4 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$100,000-$124,999",
+              children: [
+                { name: "Mentally Healthy", value: 6 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$125,000-$149,999",
+              children: [
+                { name: "Mentally Healthy", value: 4 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [
+                { name: "Mentally Healthy", value: 5 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+          ],
+        },
+        {
+          name: "Unemployed",
+          children: [
+            {
+              name: "$0-$9,999",
+              children: [
+                { name: "Mentally Healthy", value: 2 },
+                { name: "Mentally Unhealthy", value: 3 },
+              ],
+            },
+            {
+              name: "$150,000-$174,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$200,000+",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [
+                { name: "Mentally Healthy", value: 4 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [
+                { name: "Mentally Healthy", value: 6 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [{ name: "Mentally Healthy", value: 5 }],
+            },
+            {
+              name: "$125,000-$149,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Healthy", value: 1 },
+                { name: "Mentally Unhealthy", value: 2 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Some Undergraduate",
+      children: [
+        {
+          name: "Unemployed",
+          children: [
+            {
+              name: "$25,000-$49,999",
+              children: [{ name: "Mentally Healthy", value: 2 }],
+            },
+            {
+              name: "$0-$9,999",
+              children: [
+                { name: "Mentally Healthy", value: 2 },
+                { name: "Mentally Unhealthy", value: 4 },
+              ],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [
+                { name: "Mentally Healthy", value: 5 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$150,000-$174,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 1 },
+                { name: "Mentally Healthy", value: 2 },
+              ],
+            },
+            {
+              name: "$100,000-$124,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Healthy", value: 4 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+          ],
+        },
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "$100,000-$124,999",
+              children: [
+                { name: "Mentally Healthy", value: 5 },
+                { name: "Mentally Unhealthy", value: 3 },
+              ],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [
+                { name: "Mentally Healthy", value: 10 },
+                { name: "Mentally Unhealthy", value: 5 },
+              ],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [
+                { name: "Mentally Healthy", value: 8 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$0-$9,999",
+              children: [
+                { name: "Mentally Healthy", value: 3 },
+                { name: "Mentally Unhealthy", value: 2 },
+              ],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 4 },
+                { name: "Mentally Healthy", value: 2 },
+              ],
+            },
+            {
+              name: "$125,000-$149,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Healthy", value: 6 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [
+                { name: "Mentally Healthy", value: 3 },
+                { name: "Mentally Unhealthy", value: 2 },
+              ],
+            },
+            {
+              name: "$150,000-$174,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Some Masters",
+      children: [
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "$125,000-$149,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 1 },
+                { name: "Mentally Healthy", value: 3 },
+              ],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$150,000-$174,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+        {
+          name: "Unemployed",
+          children: [
+            {
+              name: "$10,000-$24,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$100,000-$124,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Completed Masters",
+      children: [
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "$25,000-$49,999",
+              children: [
+                { name: "Mentally Healthy", value: 4 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$100,000-$124,999",
+              children: [{ name: "Mentally Healthy", value: 2 }],
+            },
+            {
+              name: "$200,000+",
+              children: [
+                { name: "Mentally Unhealthy", value: 3 },
+                { name: "Mentally Healthy", value: 6 },
+              ],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [
+                { name: "Mentally Healthy", value: 4 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$125,000-$149,999",
+              children: [
+                { name: "Mentally Healthy", value: 3 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Healthy", value: 2 },
+                { name: "Mentally Unhealthy", value: 1 },
+              ],
+            },
+            {
+              name: "Prefer not to answer",
+              children: [{ name: "Mentally Healthy", value: 2 }],
+            },
+            {
+              name: "$0-$9,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$150,000-$174,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$175,000-$199,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+        {
+          name: "Unemployed",
+          children: [
+            {
+              name: "Prefer not to answer",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 1 },
+                { name: "Mentally Healthy", value: 3 },
+              ],
+            },
+            {
+              name: "$150,000-$174,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 1 },
+                { name: "Mentally Healthy", value: 1 },
+              ],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 3 }],
+            },
+            {
+              name: "$200,000+",
+              children: [{ name: "Mentally Healthy", value: 3 }],
+            },
+            {
+              name: "$175,000-$199,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Completed Phd",
+      children: [
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "$0-$9,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$200,000+",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$125,000-$149,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$100,000-$124,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+        {
+          name: "Unemployed",
+          children: [
+            {
+              name: "$200,000+",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$75,000-$99,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Some highschool",
+      children: [
+        {
+          name: "Unemployed",
+          children: [
+            {
+              name: "Prefer not to answer",
+              children: [{ name: "Mentally Healthy", value: 2 }],
+            },
+            {
+              name: "$25,000-$49,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [{ name: "Mentally Unhealthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [{ name: "Mentally Healthy", value: 2 }],
+            },
+          ],
+        },
+        {
+          name: "Employed",
+          children: [
+            {
+              name: "Prefer not to answer",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+            {
+              name: "$50,000-$74,999",
+              children: [
+                { name: "Mentally Unhealthy", value: 1 },
+                { name: "Mentally Healthy", value: 1 },
+              ],
+            },
+            {
+              name: "$10,000-$24,999",
+              children: [{ name: "Mentally Healthy", value: 1 }],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+function generateTreeMap() {
+  const width = 1024;
+  const height = 968;
+
+
+  const animationSpeed = 750;
+
+
+  let color = d3.scaleSequential([8, 0], d3.interpolateCool);
+
+
+  function tile(node, x0, y0, x1, y1) {
+    d3.treemapBinary(node, 0, 0, width, height);
+    for (const child of node.children) {
+      child.x0 = x0 + (child.x0 / width) * (x1 - x0);
+      child.x1 = x0 + (child.x1 / width) * (x1 - x0);
+      child.y0 = y0 + (child.y0 / height) * (y1 - y0);
+      child.y1 = y0 + (child.y1 / height) * (y1 - y0);
+    }
+  }
+
+
+  const treemap = (data) =>
+    d3
+      .treemap()
+      .size([width / 1.1, height / 2.5])
+      .paddingOuter(5)
+      .paddingTop(20)
+      .paddingInner(1)
+      .tile(tile)
+      .round(true)(
+        d3
+          .hierarchy(data)
+          .sum((d) => d.value)
+          .sort((a, b) => b.value - a.value)
+      );
+
+
+  function uuidv4() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c == "x" ? r : (r & 0x3) | 0x8;
+
+
+      return v.toString(16);
+    });
+  }
+
+
+  function formatName(count) {
+    if (count === 1) {
+      return count + " Person";
+    } else {
+      return count + " People";
+    }
+  }
+
+
+  function zoomIn(path, root) {
+    const name = path.split(".").splice(-1)[0];
+    const normalizedPath = path.split(".").slice(1).join(".");
+
+
+    const treemapData = normalizedPath.split(".").reduce((obj, path) => {
+      let returnObject;
+
+
+      obj.forEach((node) => {
+        if (node.name === path) {
+          returnObject = node.children;
+        }
+      });
+
+
+      return returnObject;
+    }, root.children);
+
+
+    render({
+      name,
+      children: treemapData,
+    });
+  }
+
+
+  const getPath = (element, separator) =>
+    element
+      .ancestors()
+      .reverse()
+      .map((elem) => elem.data.name)
+      .join(separator);
+
+
+  function render(data) {
+    const root = treemap(data);
+
+
+    const svg = d3.select(".treemap");
+    const newSvg = d3.select(".temp").attr("viewBox", [0, 0, width, height]);
+
+
+    newSvg
+      .append("filter")
+      .attr("id", "shadow")
+      .append("feDropShadow")
+      .attr("flood-opacity", 0.5)
+      .attr("dx", 0)
+      .attr("dy", 0)
+      .attr("stdDeviation", 2);
+
+
+    const node = newSvg
+      .selectAll("g")
+      .data(
+        d3
+          .nest()
+          .key((d) => d.height)
+          .entries(root.children)
+      )
+      .join("g")
+      .attr("filter", "url(#shadow)")
+      .selectAll("g")
+      .data((d) => d.values)
+      .join("g")
+      .attr("transform", (d) => `translate(${d.x0},${d.y0})`);
+
+
+    node.append("title").text((d) => {
+      const path = getPath(d, "/");
+      d.path = getPath(d, ".");
+      return `${getPath(d, "/")}\n${formatName(d.value)}`;
+    });
+
+
+    node
+      .append("rect")
+      .attr("id", (d) => (d.nodeId = uuidv4()))
+      .attr("fill", (d) => color(d.height))
+      .attr("width", (d) => d.x1 - d.x0)
+      .attr("height", (d) => d.y1 - d.y0);
+
+
+    node
+      .append("clipPath")
+      .attr("id", (d) => (d.clipId = uuidv4()))
+      .append("use")
+      .attr("href", (d) => `#${d.nodeId}`);
+
+
+    node
+      .append("text")
+      .attr("clip-path", (d) => `url(#${d.clipId})`)
+      .selectAll("tspan")
+      .data((d) => [d.data.name, formatName(d.value)])
+      .join("tspan")
+      .attr("fill-opacity", (d, i, nodes) =>
+        i === nodes.length - 1 ? 0.75 : null
+      )
+      .text((d) => d);
+
+
+    node
+      .filter((d) => d.children)
+      .selectAll("tspan")
+      .attr("dx", 5)
+      .attr("y", 15);
+
+
+    node
+      .filter((d) => !d.children)
+      .selectAll("tspan")
+      .attr("x", 3)
+      .attr("y", (d, i, nodes) => (i === nodes.length - 1 ? 30 : 15));
+
+
+    node
+      .filter((d) => d.children && d !== root)
+      .attr("cursor", "pointer")
+      .on("click", (d) => zoomIn(d.path, data));
+
+
+    svg
+      .transition()
+      .duration(animationSpeed)
+      .attrTween("opacity", () => d3.interpolate(1, 0));
+
+
+    newSvg
+      .transition()
+      .duration(animationSpeed)
+      .attrTween("opacity", () => d3.interpolate(0, 1))
+      .attr("class", "treemap")
+      .on("end", () => {
+        svg.attr("class", "temp").selectAll("*").remove();
+      });
+
+
+    d3.select("select").on("change", function () {
+      color = d3.scaleSequential([8, 0], d3[d3.select(this).property("value")]);
+
+
+      node.select("rect").attr("fill", (d) => color(d.height));
+    });
+  }
+
+
+  function zoomOut() {
+    render(treeMapData);
+    d3.select("#zoom-out").on("click", () => render(treeMapData));
+  }
+
+  zoomOut();
+}
+
+generateTreeMap();
+
+// Resetting diagram
+setTimeout(() => {
+  d3.select("#barSlider-prev").dispatch('click');
+}, 250);
